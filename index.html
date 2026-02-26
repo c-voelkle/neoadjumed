@@ -1,1 +1,29 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Your App Title</title>\n    <script src="https://unpkg.com/react/umd/react.development.js" crossorigin="true"></script>\n    <script src="https://unpkg.com/react-dom/umd/react-dom.development.js" crossorigin="true"></script>\n    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>\n</head>\n<body>\n    <div id="root"></div>\n    <script type="text/babel">\n        // Load and render the adjumed-mockup component\n        // Adjust the import path if necessary\n        import AdjumedMockup from './adjumed-mockup.jsx';\n\n        const App = () => {\n            return ( <AdjumedMockup /> );\n        };\n\n        ReactDOM.render(<App />, document.getElementById('root'));\n    </script>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neoadjumed App</title>
+    <style>
+        /* Inline styling for components */
+        body { font-family: Arial, sans-serif; }
+        .header { background: #f0f0f0; padding: 20px; text-align: center; }
+        .container { padding: 20px; }
+        .footer { background: #f0f0f0; padding: 20px; text-align: center; }
+        /* Add more styling as required */
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to Neoadjumed</h1>
+    </div>
+    <div class="container">
+        <!-- Inline React components can be added here -->
+        <h2>Main Component</h2>
+        <p>This is where main content goes.</p>
+    </div>
+    <div class="footer">
+        <p>&copy; 2026 Neoadjumed</p>
+    </div>
+</body>
+</html>
