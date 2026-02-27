@@ -125,9 +125,19 @@ function TileHBar({data,total}){
   const max=Math.max(...data.map(d=>d.value));
   return(<div style={{display:"flex",flexDirection:"column",gap:3}}>
     {data.map((d,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:5}}>
-      <span style={{fontSize:9,color:"#7a8599",width:24,textAlign:"right"}}>{d.label}</span>
+      {/* Increased width to 75px and added text overflow handling */}
+      <span style={{
+        fontSize:9,
+        color:"#7a8599",
+        width:75, 
+        textAlign:"right",
+        whiteSpace:"nowrap",
+        overflow:"hidden",
+        textOverflow:"ellipsis",
+        flexShrink:0
+      }} title={d.label}>{d.label}</span>
       <div style={{flex:1,height:10,background:"#f0f1f3",borderRadius:3,overflow:"hidden"}}><div style={{width:(d.value/max*100)+"%",height:"100%",background:d.color,borderRadius:3,transition:"width .5s ease"}} /></div>
-      <span style={{fontSize:9,color:"#5a6577",width:16,fontFamily:"'DM Mono',monospace"}}>{d.value}</span>
+      <span style={{fontSize:9,color:"#5a6577",width:16,fontFamily:"'DM Mono',monospace", flexShrink:0}}>{d.value}</span>
     </div>))}
   </div>);
 }
