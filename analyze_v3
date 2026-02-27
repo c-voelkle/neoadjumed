@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adjumed Analyze — Redesign Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: #f7f8fa; color: #1a2332; }
+    #root { min-height: 100vh; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(74,144,217,0.15); } 50% { box-shadow: 0 0 0 8px rgba(74,144,217,0); } }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+    @keyframes slideIn { from { opacity:0; transform: translateY(-8px) scale(0.97); } to { opacity:1; transform: translateY(0) scale(1); } }
+    .ai-search-input::placeholder { color: #8ab4d8; }
+    .ai-search-input:focus { outline: none; }
+    .tile-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .tile-hover { transition: all 0.2s ease; }
+    .filter-card-hover:hover { border-color: #4A90D9 !important; background: #f8fbff !important; }
+    .filter-card-hover { transition: all 0.15s ease; }
+    .typing-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #6AAEE6; margin: 0 2px; animation: blink 1.4s infinite; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    .chart-bar-segment:hover { opacity: 0.85; filter: brightness(1.08); }
+    .chart-bar-segment { transition: all 0.15s ease; cursor: pointer; }
+    .popover-overlay { position: fixed; inset: 0; z-index: 99; }
+  </style>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    /* ================================================================
+       DATA
+    ================================================================ */
+    const STEPS = ["Define Cohort", "Explore & Analyze", "Export"];
+
+    const FIELD_CATEGORIES = {
+      "Patient Demographics": [
+        { id: "age", label: "Age", code: "KL_1003" },
+        { id: "age_class", label: "Age Group", code: "KL_2387" },
+        { id: "birth_year", label: "Year of Birth", code: "KL_112" },
+      ],
+      Diagnosis: [
+        { id: "main_diag", label: "Primary Diagnosis", code: "I01" },
+        { id: "tumor_stage", label: "Tumor Stage (T)", code: "I05" },
+        { id: "her2", label: "HER2 Status", code: "OP_559" },
+      ],
+      Surgery: [
+        { id: "op_type", label: "Type of First Oncological Breast Surgery", code: "E08" },
+        { id: "resection", label: "Resection Status (R)", code: "E12" },
+        { id: "patient_operated", label: "Patient Operated", code: "N00" },
+      ],
+      "Clarification & Referral": [
+        { id: "ext_clarification", label: "External Clarification", code: "KL_2843" },
+        { id: "ext_clarification_copy", label: "External Clarification (Copy A0\u2192A1)", code: "OP_16319" },
+      ],
+    };
+    const OPERATORS = ["is", "is not", "contains", "greater than", "less than"];
+    const VALUE_OPTIONS = {
+      ext_clarification: ["Yes", "No"], patient_operated: ["Yes", "No", "Yes, but externally"],
+      op_type: ["Breast-conserving", "Mastectomy", "Mastectomy with reconstruction", "Other"],
+      resection: ["R0", "R1", "R2"], main_diag: ["Invasive carcinoma", "In situ carcinoma", "No carcinoma"],
+      tumor_stage: ["Tis", "T1", "T2", "T3", "T4"], her2: ["Positive", "Negative", "Equivocal"],
+    };
+    const SAMPLE_CASES = [
+      { nr:1, pid:"8\u2588\u2588", date:"03.02.2025", birthYear:1965, diagnosis:"Invasive carcinoma", surgery:"Breast-conserving", resection:"R0", stage:"T1" },
+      { nr:2, pid:"7\u2588\u2588", date:"06.02.2025", birthYear:1972, diagnosis:"Invasive carcinoma", surgery:"Mastectomy", resection:"R0", stage:"T2" },
+      { nr:3, pid:"5\u2588\u2588", date:"20.02.2025", birthYear:1978, diagnosis:"In situ carcinoma", surgery:"Breast-conserving", resection:"R0", stage:"Tis" },
+      { nr:4, pid:"9\u2588\u2588", date:"14.01.2025", birthYear:1960, diagnosis:"Invasive carcinoma", surgery:"Breast-conserving", resection:"R1", stage:"T2" },
+      { nr:5, pid:"3\u2588\u2588", date:"28.01.2025", birthYear:1985, diagnosis:"Invasive carcinoma", surgery:"Mastectomy with reconstruction", resection:"R0", stage:"T3" },
+      { nr:6, pid:"6\u2588\u2588", date:"11.03.2025", birthYear:1969, diagnosis:"Invasive carcinoma", surgery:"Breast-conserving", resection:"R0", stage:"T1" },
+      { nr:7, pid:"4\u2588\u2588", date:"22.03.2025", birthYear:1991, diagnosis:"No carcinoma", surgery:"Breast-conserving", resection:"R0", stage:"T1" },
+      { nr:8, pid:"2\u2588\u2588", date:"05.04.2025", birthYear:1954, diagnosis:"Invasive carcinoma", surgery:"Breast-conserving", resection:"R0", stage:"T1" },
+    ];
+    const SAVED_FILTERS = [
+      { id:1, name:"R0 Resections 2025", description:"All cases with R0 resection status in 2025", author:"C. V\u00f6lkle", date:"15.01.2025", starred:true, lastUsed:"2 hours ago", onDashboard:true },
+      { id:2, name:"EUSOMA / DKG / SBCDB Cases", description:"Cases matching EUSOMA, DKG, or SBCDB criteria", author:"Adjumed", date:"07.05.2015", starred:false, lastUsed:"3 days ago", onDashboard:false },
+      { id:3, name:"Externally Clarified Cases", description:"External clarification = true", author:"C. V\u00f6lkle", date:"04.02.2025", starred:true, lastUsed:"Yesterday", onDashboard:true },
+      { id:4, name:"Mastectomy Cases T2+", description:"Mastectomy patients with tumor stage T2+", author:"C. V\u00f6lkle", date:"22.12.2024", starred:false, lastUsed:"1 week ago", onDashboard:false },
+      { id:5, name:"HER2-positive Subgroup", description:"HER2 status = positive, 2024\u20132025", author:"C. V\u00f6lkle", date:"10.01.2025", starred:true, lastUsed:"4 days ago", onDashboard:false },
+    ];
+    const PREDEFINED_REPORTS = [
+      { id:"rpt1", name:"EUSOMA Quality Indicators", description:"Standardized EUSOMA breast cancer quality indicators report", version:"v3.2" },
+      { id:"rpt2", name:"DKG Annual Report", description:"DKG-compliant annual certification report template", version:"v2.1" },
+      { id:"rpt3", name:"SBCDB Summary", description:"Swiss Breast Cancer Database summary export", version:"v1.4" },
+      { id:"rpt4", name:"AQC Report", description:"Adjumed Quality Control indicators", version:"v4.0" },
+    ];
+    const EXPORT_FIELD_GROUPS = {
+      "Patient Info": ["PID", "Date of First Consultation", "Year of Birth", "Age", "Age Group"],
+      Diagnosis: ["Primary Diagnosis", "Tumor Stage (T)", "HER2 Status", "Grading"],
+      Surgery: ["Surgery Type", "Resection Status", "Patient Operated", "Number of Operations"],
+      Clarification: ["External Clarification", "Date Changed"],
+    };
+    const AI_SAMPLE_QUERIES = [
+      "How many breast-conserving surgeries in 2025?",
+      "R0 resection rate for T2 tumors?",
+      "Show all HER2-positive cases from last year",
+      "Compare mastectomy vs. breast-conserving outcomes",
+    ];
+
+    /* ================================================================
+       ICONS
+    ================================================================ */
+    const ChevronRight = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>);
+    const SearchIcon = ({size}) => (<svg width={size||16} height={size||16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>);
+    const PlusIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>);
+    const XIcon = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>);
+    const StarIcon = ({filled,size}) => (<svg width={size||14} height={size||14} viewBox="0 0 24 24" fill={filled?"#E8A838":"none"} stroke={filled?"#E8A838":"currentColor"} strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>);
+    const DownloadIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>);
+    const FolderIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>);
+    const CheckIcon = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>);
+    const HomeIcon = ({size}) => (<svg width={size||16} height={size||16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>);
+    const SparkleIcon = ({size}) => (<svg width={size||18} height={size||18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8L12 2z"/></svg>);
+    const CalendarIcon = () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>);
+    const TargetIcon = () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>);
+    const AlertIcon = () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>);
+    const TrendIcon = () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>);
+    const ClockIcon = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>);
+    const ArrowRightIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>);
+    const SendIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>);
+    const GearIcon = ({size}) => (<svg width={size||14} height={size||14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>);
+    const FileTextIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>);
+    const LayoutIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>);
+    const FilterIcon = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>);
+
+    const TILE_ICONS = { calendar:CalendarIcon, target:TargetIcon, alert:AlertIcon, trending:TrendIcon };
+
+    /* ================================================================
+       STYLES
+    ================================================================ */
+    const cardStyle = { background:"#fff", border:"1px solid #e8eaed", borderRadius:12, padding:"20px 22px", marginBottom:16 };
+    const selectStyle = { padding:"8px 12px", borderRadius:8, border:"1.5px solid #dde0e6", background:"#fff", fontSize:13, color:"#1a2332", fontFamily:"'DM Sans', sans-serif", cursor:"pointer", outline:"none", minWidth:160 };
+    const inputStyle = { padding:"8px 12px", borderRadius:8, border:"1.5px solid #dde0e6", background:"#fff", fontSize:13, color:"#1a2332", fontFamily:"'DM Sans', sans-serif", outline:"none" };
+    const primaryBtnStyle = { padding:"8px 18px", borderRadius:8, border:"none", background:"#4A90D9", color:"#fff", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"'DM Sans', sans-serif", display:"flex", alignItems:"center", gap:6, transition:"background 0.15s" };
+    const secondaryBtnStyle = { padding:"8px 16px", borderRadius:8, border:"1.5px solid #dde0e6", background:"#fff", color:"#5a6577", fontSize:13, fontWeight:500, cursor:"pointer", fontFamily:"'DM Sans', sans-serif", display:"flex", alignItems:"center", gap:6 };
+    const secondaryBtnSmallStyle = { padding:"4px 10px", borderRadius:6, border:"1.5px solid #dde0e6", background:"#fff", color:"#5a6577", fontSize:11, fontWeight:500, cursor:"pointer", fontFamily:"'DM Sans', sans-serif" };
+    const textBtnStyle = { padding:"8px 12px", border:"none", background:"none", color:"#4A90D9", fontSize:13, fontWeight:500, cursor:"pointer", fontFamily:"'DM Sans', sans-serif", display:"flex", alignItems:"center", gap:4 };
+    const iconBtnStyle = { width:30, height:30, borderRadius:6, border:"none", background:"none", color:"#a0a9b8", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" };
+    const iconBtnSmallStyle = { border:"none", background:"none", cursor:"pointer", display:"flex", alignItems:"center", padding:2 };
+    const cellStyle = { padding:"10px 12px" };
+    const toggleStyle = (on) => ({ width:36, height:20, borderRadius:10, background:on?"#4A90D9":"#d0d5dd", position:"relative", cursor:"pointer", transition:"background 0.2s", border:"none", padding:0 });
+    const toggleKnob = (on) => ({ width:16, height:16, borderRadius:"50%", background:"#fff", position:"absolute", top:2, left:on?18:2, transition:"left 0.2s", boxShadow:"0 1px 3px rgba(0,0,0,0.15)" });
+
+    /* ================================================================
+       COMPONENTS
+    ================================================================ */
+    function Toggle({ on, onChange }) {
+      return (<button style={toggleStyle(on)} onClick={onChange}><div style={toggleKnob(on)} /></button>);
+    }
+
+    function FilterRow({ filter, onRemove, onUpdate }) {
+      return (
+        <div style={{ display:"flex", alignItems:"center", gap:8, padding:"8px 0", borderBottom:"1px solid #f0f0f0" }}>
+          <select value={filter.field} onChange={(e)=>onUpdate({...filter,field:e.target.value,value:""})} style={selectStyle}>
+            <option value="">Select field...</option>
+            {Object.entries(FIELD_CATEGORIES).map(([cat,fields])=>(<optgroup key={cat} label={cat}>{fields.map(f=><option key={f.id} value={f.id}>{f.label}</option>)}</optgroup>))}
+          </select>
+          <select value={filter.operator} onChange={(e)=>onUpdate({...filter,operator:e.target.value})} style={{...selectStyle,width:130}}>
+            {OPERATORS.map(op=><option key={op} value={op}>{op}</option>)}
+          </select>
+          {VALUE_OPTIONS[filter.field]?(
+            <select value={filter.value} onChange={(e)=>onUpdate({...filter,value:e.target.value})} style={{...selectStyle,flex:1}}><option value="">Select value...</option>{VALUE_OPTIONS[filter.field].map(v=><option key={v} value={v}>{v}</option>)}</select>
+          ):(<input type="text" placeholder="Enter value..." value={filter.value} onChange={(e)=>onUpdate({...filter,value:e.target.value})} style={{...inputStyle,flex:1}} />)}
+          <button onClick={onRemove} style={iconBtnStyle}><XIcon /></button>
+        </div>
+      );
+    }
+
+    function KPICard({ label, value, sub, color }) {
+      return (
+        <div style={{ background:"#fff", border:"1px solid #e8eaed", borderRadius:10, padding:"18px 22px", flex:1, minWidth:140, borderTop:"3px solid "+(color||"#4A90D9") }}>
+          <div style={{ fontSize:11, color:"#7a8599", textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:6 }}>{label}</div>
+          <div style={{ fontSize:28, fontFamily:"'Instrument Serif', Georgia, serif", fontWeight:400, color:"#1a2332" }}>{value}</div>
+          {sub&&<div style={{ fontSize:12, color:"#7a8599", marginTop:4 }}>{sub}</div>}
+        </div>
+      );
+    }
+
+    /* Interactive MiniBar - clickable segments that trigger filtering */
+    function MiniBar({ data, colors, onBarClick, activeFilter }) {
+      const max = Math.max(...data.map(d=>d.value));
+      return (
+        <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+          {data.map((d,i)=>{
+            const isActive = activeFilter === d.label;
+            return (
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:8 }} onClick={()=>onBarClick && onBarClick(d.label)}>
+                <div style={{ width:100, fontSize:12, color:isActive?"#1a2332":"#5a6577", textAlign:"right", flexShrink:0, fontWeight:isActive?600:400 }}>{d.label}</div>
+                <div style={{ flex:1, height:24, background:isActive?"#e8eaed":"#f4f5f7", borderRadius:4, overflow:"hidden", cursor:"pointer", position:"relative", border:isActive?"2px solid "+(colors&&colors[i]||"#4A90D9"):"2px solid transparent", transition:"all 0.15s" }}>
+                  <div className="chart-bar-segment" style={{ width:((d.value/max)*100)+"%", height:"100%", background:(colors&&colors[i])||"#4A90D9", borderRadius:3, display:"flex", alignItems:"center", paddingLeft:8, transition:"width 0.6s cubic-bezier(0.22,1,0.36,1)" }}>
+                    <span style={{ fontSize:11, color:"#fff", fontWeight:600 }}>{d.value}</span>
+                  </div>
+                </div>
+                <div style={{ width:42, fontSize:11, color:"#7a8599", fontFamily:"'DM Mono', monospace" }}>{d.pct}%</div>
+                {isActive && <div style={{ color:"#4A90D9" }}><FilterIcon /></div>}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    /* Tile Settings Popover */
+    function TileSettings({ tile, settings, onChange, onClose }) {
+      return (
+        <React.Fragment>
+          <div className="popover-overlay" onClick={onClose} />
+          <div style={{ position:"absolute", top:"100%", right:0, marginTop:4, width:280, background:"#fff", borderRadius:12, border:"1px solid #e0e4ea", boxShadow:"0 12px 32px rgba(0,0,0,0.12)", zIndex:100, padding:"16px 18px", animation:"slideIn 0.2s ease" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+              <span style={{ fontSize:13, fontWeight:600 }}>Widget Settings</span>
+              <button onClick={onClose} style={iconBtnSmallStyle}><XIcon /></button>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
+              <div>
+                <div style={{ fontSize:12, color:"#7a8599", marginBottom:6 }}>Date Range</div>
+                <select value={settings.dateRange||"2025"} onChange={(e)=>onChange({...settings,dateRange:e.target.value})} style={{...selectStyle,width:"100%",minWidth:0}}>
+                  <option value="2025">2025</option><option value="2024">2024</option><option value="2024-2025">2024\u20132025</option><option value="2023-2025">2023\u20132025</option><option value="all">All years</option>
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize:12, color:"#7a8599", marginBottom:6 }}>Chart Type</div>
+                <div style={{ display:"flex", gap:6 }}>
+                  {["bar","donut","number"].map(t=>(
+                    <button key={t} onClick={()=>onChange({...settings,chartType:t})} style={{ flex:1, padding:"6px 0", borderRadius:6, border:(settings.chartType||"bar")===t?"1.5px solid #4A90D9":"1.5px solid #dde0e6", background:(settings.chartType||"bar")===t?"#EBF3FC":"#fff", color:(settings.chartType||"bar")===t?"#2B6CB0":"#5a6577", fontSize:12, cursor:"pointer", fontFamily:"'DM Sans', sans-serif", textTransform:"capitalize" }}>{t}</button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <span style={{ fontSize:12, color:"#5a6577" }}>Show Benchmark</span>
+                <Toggle on={settings.benchmark!==false} onChange={()=>onChange({...settings,benchmark:settings.benchmark===false?true:false})} />
+              </div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <span style={{ fontSize:12, color:"#5a6577" }}>Show on Dashboard</span>
+                <Toggle on={settings.visible!==false} onChange={()=>onChange({...settings,visible:settings.visible===false?true:false})} />
+              </div>
+              <button onClick={onClose} style={{...primaryBtnStyle,width:"100%",justifyContent:"center",fontSize:12,padding:"7px 12px"}}>Save Settings</button>
+            </div>
+          </div>
+        </React.Fragment>
+      );
+    }
+
+    /* AI Answer Panel */
+    function AIAnswerPanel({ query, onExplore, onExport }) {
+      const [phase, setPhase] = useState("thinking");
+      useEffect(()=>{ setPhase("thinking"); const t1=setTimeout(()=>setPhase("answering"),1500); const t2=setTimeout(()=>setPhase("done"),3200); return()=>{clearTimeout(t1);clearTimeout(t2);}; },[query]);
+      return (
+        <div style={{ animation:"fadeInUp 0.3s ease", marginTop:16 }}>
+          <div style={{...cardStyle, border:"1.5px solid #d0e3f5", background:"linear-gradient(135deg, #f8fbff 0%, #f0f6ff 100%)"}}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
+              <div style={{ width:28, height:28, borderRadius:8, background:"linear-gradient(135deg, #4A90D9, #6AAEE6)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff" }}><SparkleIcon size={14} /></div>
+              <span style={{ fontSize:13, fontWeight:600, color:"#2B6CB0" }}>AI Analysis</span>
+              {phase==="done"&&<span style={{ fontSize:11, marginLeft:"auto", background:"#e8f5e9", padding:"2px 8px", borderRadius:10, color:"#2e7d32" }}>Complete</span>}
+            </div>
+            <div style={{ fontSize:13, color:"#5a6577", marginBottom:12, fontStyle:"italic", borderLeft:"3px solid #d0e3f5", paddingLeft:12 }}>"{query}"</div>
+            {phase==="thinking"&&(<div style={{ display:"flex", alignItems:"center", gap:10, padding:"16px 0" }}><span style={{ fontSize:13, color:"#7a8599" }}>Analyzing your data</span><span className="typing-dot"></span><span className="typing-dot"></span><span className="typing-dot"></span></div>)}
+            {(phase==="answering"||phase==="done")&&(
+              <div style={{ animation:"fadeIn 0.5s ease" }}>
+                <div style={{ display:"flex", gap:14, marginBottom:16 }}>
+                  {[{l:"Matching Cases",v:"58",c:"#1a2332"},{l:"Of Total",v:"78.4%",c:"#1a2332"},{l:"R0 Rate",v:"93.1%",c:"#34C17B"}].map((k,i)=>(
+                    <div key={i} style={{ flex:1, background:"#fff", borderRadius:10, padding:"14px 16px", border:"1px solid #e8eaed" }}>
+                      <div style={{ fontSize:11, color:"#7a8599", textTransform:"uppercase", letterSpacing:"0.04em", marginBottom:4 }}>{k.l}</div>
+                      <div style={{ fontSize:26, fontFamily:"'Instrument Serif', Georgia, serif", color:k.c }}>{k.v}</div>
+                    </div>
+                  ))}
+                </div>
+                {phase==="done"&&(
+                  <div style={{ animation:"fadeIn 0.4s ease" }}>
+                    <div style={{ fontSize:13, color:"#3d4f66", lineHeight:1.65, marginBottom:16 }}>In 2025, <strong>58 breast-conserving surgeries</strong> were performed at Clinic 1742, representing 78.4% of all surgical cases. The R0 resection rate is 93.1%, above the EUSOMA benchmark of 90%. The majority were T1 stage (62%) with a median patient age of 56.</div>
+                    <div style={{ display:"flex", gap:8, paddingTop:12, borderTop:"1px solid #e8eaed", flexWrap:"wrap" }}>
+                      <button onClick={onExplore} style={{...primaryBtnStyle,fontSize:13}}>Explore these 58 cases <ArrowRightIcon /></button>
+                      <button onClick={onExport} style={{...secondaryBtnStyle,fontSize:13}}><DownloadIcon /> Export</button>
+                      <button style={{...textBtnStyle,fontSize:13}}>Save as filter set</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    /* ================================================================
+       MAIN APP
+    ================================================================ */
+    function App() {
+      const [view, setView] = useState("home");
+      const [step, setStep] = useState(0);
+      const [filters, setFilters] = useState([{id:1,field:"ext_clarification",operator:"is",value:"Yes"}]);
+      const [years, setYears] = useState([2025]);
+      const [showSaved, setShowSaved] = useState(false);
+      const [fieldSearch, setFieldSearch] = useState("");
+      const [exportFields, setExportFields] = useState(["PID","Date of First Consultation","Year of Birth","Primary Diagnosis","Surgery Type","Resection Status"]);
+      const [aiQuery, setAiQuery] = useState("");
+      const [aiSubmitted, setAiSubmitted] = useState(null);
+      const [searchFocused, setSearchFocused] = useState(false);
+      const [addToDash, setAddToDash] = useState(false);
+      const [exportTab, setExportTab] = useState("fields"); // "fields" | "reports"
+      const [tileSettings, setTileSettings] = useState({});
+      const [openSettings, setOpenSettings] = useState(null);
+      const [chartFilters, setChartFilters] = useState({});
+      const [dashItems, setDashItems] = useState(SAVED_FILTERS.filter(f=>f.onDashboard));
+
+      const addFilter = () => setFilters([...filters,{id:Date.now(),field:"",operator:"is",value:""}]);
+      const removeFilter = (id) => setFilters(filters.filter(f=>f.id!==id));
+      const updateFilter = (id,nf) => setFilters(filters.map(f=>f.id===id?{...nf,id}:f));
+      const toggleYear = (y) => setYears(years.includes(y)?years.filter(yr=>yr!==y):[...years,y]);
+      const toggleExportField = (field) => setExportFields(exportFields.includes(field)?exportFields.filter(f=>f!==field):[...exportFields,field]);
+      const toggleAllGroup = (fields) => { const a=fields.every(f=>exportFields.includes(f)); setExportFields(a?exportFields.filter(f=>!fields.includes(f)):[...new Set([...exportFields,...fields])]); };
+      const goToWorkflow = (s) => { setView("workflow"); setStep(s||0); };
+      const goHome = () => { setView("home"); setAiSubmitted(null); setAiQuery(""); };
+      const handleAISubmit = (q) => { const query=q||aiQuery; if(!query.trim()) return; setAiQuery(query); setAiSubmitted(query); };
+      const getTileSettings = (id) => tileSettings[id] || { dateRange:"2025", chartType:"bar", benchmark:true, visible:true };
+      const updateTileSettings = (id,s) => setTileSettings({...tileSettings,[id]:s});
+      const toggleChartFilter = (chartId,label) => {
+        setChartFilters(prev => {
+          const current = prev[chartId];
+          if (current === label) return {...prev, [chartId]: null};
+          return {...prev, [chartId]: label};
+        });
+      };
+
+      const totalCases = 74;
+      const activeFilters = filters.filter(f=>f.field&&f.value);
+      const favoriteFilters = SAVED_FILTERS.filter(f=>f.starred);
+      const chartFilterCount = Object.values(chartFilters).filter(Boolean).length;
+
+      /* ---- HEADER ---- */
+      const Header = () => (
+        <div style={{ background:"#0f2b4a", padding:"0 32px", display:"flex", alignItems:"center", justifyContent:"space-between", height:56 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:0 }}>
+            <span onClick={goHome} style={{ color:"#fff", fontSize:18, fontWeight:700, letterSpacing:"0.08em", cursor:"pointer", marginRight:10 }}>ADJUMED</span>
+            <span onClick={goHome} style={{ color:"#6AAEE6", fontSize:14, fontWeight:500, cursor:"pointer" }}>ANALYZE</span>
+            <span style={{ color:"#3d6b96", fontSize:13, margin:"0 12px" }}>|</span>
+            <span style={{ color:"#8ab4d8", fontSize:13 }}>Clinic 1742</span>
+          </div>
+          <div style={{ display:"flex", alignItems:"center", gap:16, color:"#8ab4d8", fontSize:13 }}>
+            <span>Curtis V&ouml;lkle</span>
+            <div style={{ width:30, height:30, borderRadius:"50%", background:"#1d4872", display:"flex", alignItems:"center", justifyContent:"center", color:"#6AAEE6", fontSize:12, fontWeight:600 }}>CV</div>
+          </div>
+        </div>
+      );
+
+      /* ---- PERSISTENT NAV BAR (used in workflow view) ---- */
+      const NavBar = () => (
+        <div style={{ background:"#fff", borderBottom:"1px solid #e8eaed", padding:"0 32px", display:"flex", alignItems:"center", height:52 }}>
+          {/* Dashboard tab - always visible and prominent */}
+          <div onClick={goHome} style={{ display:"flex", alignItems:"center", gap:8, padding:"0 20px", height:"100%", cursor:"pointer", borderBottom:view==="home"?"2px solid #4A90D9":"2px solid transparent", marginRight:8, transition:"all 0.2s" }}>
+            <div style={{ width:26, height:26, borderRadius:8, background:view==="home"?"#EBF3FC":"#f4f5f7", display:"flex", alignItems:"center", justifyContent:"center", color:view==="home"?"#4A90D9":"#7a8599", transition:"all 0.2s" }}><HomeIcon size={14} /></div>
+            <span style={{ fontSize:13, fontWeight:600, color:view==="home"?"#1a2332":"#7a8599" }}>Dashboard</span>
+          </div>
+          <div style={{ width:1, height:28, background:"#e8eaed", marginRight:8 }} />
+          {/* Workflow steps */}
+          {STEPS.map((s,i)=>(
+            <div key={i} onClick={()=>{setView("workflow");setStep(i);}} style={{ display:"flex", alignItems:"center", gap:8, padding:"0 18px", height:"100%", cursor:"pointer", borderBottom:view==="workflow"&&step===i?"2px solid #4A90D9":"2px solid transparent", transition:"all 0.2s", opacity:view==="workflow"?1:0.5 }}>
+              <div style={{ width:22, height:22, borderRadius:"50%", background:view==="workflow"&&step===i?"#4A90D9":view==="workflow"&&i<step?"#34C17B":"#e0e4ea", color:"#fff", fontSize:11, fontWeight:600, display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.3s" }}>{view==="workflow"&&i<step?<CheckIcon />:i+1}</div>
+              <span style={{ fontSize:13, fontWeight:view==="workflow"&&step===i?600:400, color:view==="workflow"&&step===i?"#1a2332":"#7a8599" }}>{s}</span>
+              {i<STEPS.length-1&&<div style={{ width:24, height:1, background:"#e0e4ea", marginLeft:8 }} />}
+            </div>
+          ))}
+          <div style={{ marginLeft:"auto", display:"flex", gap:8 }}>
+            {view==="workflow"&&step>0&&<button onClick={()=>setStep(step-1)} style={secondaryBtnStyle}>Back</button>}
+            {view==="workflow"&&step<2&&<button onClick={()=>setStep(step+1)} style={primaryBtnStyle}>{step===0?"Show "+totalCases+" Cases":"Export"}<ChevronRight /></button>}
+          </div>
+        </div>
+      );
+
+      /* ===== HOME VIEW ===== */
+      if (view === "home") {
+        return (
+          <div>
+            <Header />
+            <NavBar />
+            {/* Hero */}
+            <div style={{ background:"linear-gradient(135deg, #0f2b4a 0%, #163d65 50%, #1d4872 100%)", padding:"40px 32px 44px", position:"relative", overflow:"hidden" }}>
+              <div style={{ position:"absolute", inset:0, opacity:0.04, backgroundImage:"radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize:"32px 32px" }} />
+              <div style={{ maxWidth:800, margin:"0 auto", position:"relative", zIndex:1 }}>
+                <div style={{ textAlign:"center", marginBottom:6 }}><span style={{ fontSize:13, color:"#6AAEE6", fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase" }}>Welcome back, Curtis</span></div>
+                <h1 style={{ fontSize:30, fontFamily:"'Instrument Serif', Georgia, serif", fontWeight:400, color:"#fff", textAlign:"center", marginBottom:24, lineHeight:1.3 }}>What would you like to know about your data?</h1>
+                {/* AI Search */}
+                <div style={{ position:"relative", background:"rgba(255,255,255,0.1)", borderRadius:16, border:searchFocused?"1.5px solid rgba(106,174,230,0.6)":"1.5px solid rgba(255,255,255,0.15)", transition:"all 0.25s ease", animation:searchFocused?"pulseGlow 2s infinite":"none" }}>
+                  <div style={{ display:"flex", alignItems:"center", padding:"6px 8px 6px 20px", gap:12 }}>
+                    <span style={{ color:"#6AAEE6", flexShrink:0 }}><SparkleIcon size={20} /></span>
+                    <input className="ai-search-input" type="text" placeholder="Ask a question about your data..." value={aiQuery} onChange={(e)=>setAiQuery(e.target.value)} onFocus={()=>setSearchFocused(true)} onBlur={()=>setTimeout(()=>setSearchFocused(false),200)} onKeyDown={(e)=>e.key==="Enter"&&handleAISubmit()} style={{ flex:1, background:"none", border:"none", color:"#fff", fontSize:15, fontFamily:"'DM Sans', sans-serif", padding:"12px 0" }} />
+                    <button onClick={()=>handleAISubmit()} style={{ padding:"10px 20px", borderRadius:10, border:"none", background:aiQuery.trim()?"#4A90D9":"rgba(255,255,255,0.1)", color:"#fff", fontSize:13, fontWeight:600, cursor:aiQuery.trim()?"pointer":"default", fontFamily:"'DM Sans', sans-serif", display:"flex", alignItems:"center", gap:6 }}><SendIcon /> Ask</button>
+                  </div>
+                  {searchFocused&&!aiSubmitted&&(
+                    <div style={{ padding:"4px 20px 14px", borderTop:"1px solid rgba(255,255,255,0.08)", animation:"fadeIn 0.2s ease" }}>
+                      <div style={{ fontSize:11, color:"rgba(255,255,255,0.4)", marginBottom:8, textTransform:"uppercase", letterSpacing:"0.04em" }}>Try asking</div>
+                      <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                        {AI_SAMPLE_QUERIES.map((q,i)=>(<button key={i} onClick={()=>{setAiQuery(q);handleAISubmit(q);}} style={{ padding:"6px 12px", borderRadius:8, border:"1px solid rgba(255,255,255,0.15)", background:"rgba(255,255,255,0.06)", color:"rgba(255,255,255,0.75)", fontSize:12, cursor:"pointer", fontFamily:"'DM Sans', sans-serif" }} onMouseEnter={(e)=>{e.currentTarget.style.background="rgba(255,255,255,0.12)";e.currentTarget.style.color="#fff";}} onMouseLeave={(e)=>{e.currentTarget.style.background="rgba(255,255,255,0.06)";e.currentTarget.style.color="rgba(255,255,255,0.75)";}}>{q}</button>))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* AI Answer */}
+            <div style={{ maxWidth:1200, margin:"0 auto", padding:"0 32px" }}>
+              {aiSubmitted&&<AIAnswerPanel query={aiSubmitted} onExplore={()=>goToWorkflow(1)} onExport={()=>goToWorkflow(2)} />}
+            </div>
+
+            {/* Dashboard Content */}
+            <div style={{ maxWidth:1200, margin:"0 auto", padding:aiSubmitted?"8px 32px 32px":"24px 32px 32px" }}>
+
+              {/* Start New Analysis */}
+              <div style={{ marginBottom:24 }}>
+                <button onClick={()=>goToWorkflow(0)} style={{ padding:"14px 28px", borderRadius:12, border:"2px dashed #c4d6ea", background:"#f0f6ff", color:"#2B6CB0", fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"'DM Sans', sans-serif", display:"flex", alignItems:"center", gap:10, width:"100%", justifyContent:"center", transition:"all 0.2s" }}
+                  onMouseEnter={(e)=>{e.currentTarget.style.background="#e3eefa";e.currentTarget.style.borderColor="#4A90D9";}}
+                  onMouseLeave={(e)=>{e.currentTarget.style.background="#f0f6ff";e.currentTarget.style.borderColor="#c4d6ea";}}
+                ><PlusIcon /> Start a New Analysis</button>
+              </div>
+
+              {/* Quick Access Tiles with Settings + Export */}
+              <div style={{ marginBottom:28 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+                  <div style={{ fontSize:15, fontWeight:600 }}>Quick Access</div>
+                </div>
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:14 }}>
+                  {[
+                    { id:"q1", icon:"calendar", label:"My 2025 Cases", description:"All cases from current year", count:74, color:"#4A90D9" },
+                    { id:"q2", icon:"target", label:"R0 Resection Rate", description:"Complete resection overview", count:"52.7%", color:"#34C17B" },
+                    { id:"q3", icon:"alert", label:"Pending Cases", description:"Cases awaiting completion", count:12, color:"#E8A838" },
+                    { id:"q4", icon:"trending", label:"Monthly Trend", description:"Case volume over time", count:null, color:"#7C6EE7" },
+                  ].map((tile,i)=>{
+                    const Icon = TILE_ICONS[tile.icon];
+                    const ts = getTileSettings(tile.id);
+                    return (
+                      <div key={tile.id} className="tile-hover" style={{ background:"#fff", border:"1px solid #e8eaed", borderRadius:12, padding:"18px", cursor:"pointer", position:"relative", overflow:"visible", animation:"fadeInUp 0.4s ease "+(i*0.08)+"s both" }}>
+                        <div style={{ position:"absolute", top:-20, right:-20, width:80, height:80, borderRadius:"50%", background:tile.color, opacity:0.06 }} />
+                        {/* Settings gear + Export icon row */}
+                        <div style={{ position:"absolute", top:10, right:10, display:"flex", gap:2, zIndex:2 }}>
+                          <button onClick={(e)=>{e.stopPropagation();goToWorkflow(2);}} style={{...iconBtnSmallStyle,padding:4,color:"#c4cad4"}} title="Export"><DownloadIcon /></button>
+                          <button onClick={(e)=>{e.stopPropagation();setOpenSettings(openSettings===tile.id?null:tile.id);}} style={{...iconBtnSmallStyle,padding:4,color:openSettings===tile.id?"#4A90D9":"#c4cad4"}} title="Settings"><GearIcon size={14} /></button>
+                        </div>
+                        {openSettings===tile.id&&<TileSettings tile={tile} settings={ts} onChange={(s)=>updateTileSettings(tile.id,s)} onClose={()=>setOpenSettings(null)} />}
+                        <div onClick={()=>goToWorkflow(1)} style={{ position:"relative", zIndex:1 }}>
+                          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:12, paddingRight:50 }}>
+                            <div style={{ width:40, height:40, borderRadius:10, background:tile.color+"14", display:"flex", alignItems:"center", justifyContent:"center", color:tile.color }}><Icon /></div>
+                            {tile.count!==null&&<span style={{ fontSize:22, fontFamily:"'Instrument Serif', Georgia, serif", color:tile.color }}>{tile.count}</span>}
+                          </div>
+                          <div style={{ fontSize:14, fontWeight:600, color:"#1a2332", marginBottom:3 }}>{tile.label}</div>
+                          <div style={{ fontSize:12, color:"#7a8599" }}>{tile.description}</div>
+                          {ts.dateRange&&ts.dateRange!=="2025"&&<div style={{ fontSize:11, color:"#a0a9b8", marginTop:4 }}>{ts.dateRange}</div>}
+                          {ts.benchmark===false&&<div style={{ fontSize:10, color:"#c4cad4", marginTop:2 }}>Benchmark: off</div>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* User-pinned Dashboard Items */}
+              {dashItems.length>0&&(
+                <div style={{ marginBottom:28 }}>
+                  <div style={{ fontSize:15, fontWeight:600, marginBottom:14, display:"flex", alignItems:"center", gap:8 }}><LayoutIcon /> My Dashboard Items</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+                    {dashItems.map((item,i)=>(
+                      <div key={item.id} className="filter-card-hover" style={{ background:"#fff", border:"1px solid #e8eaed", borderRadius:10, padding:"16px 18px", cursor:"pointer" }} onClick={()=>goToWorkflow(1)}>
+                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                          <div style={{ width:32, height:32, borderRadius:8, background:"#EBF3FC", display:"flex", alignItems:"center", justifyContent:"center", color:"#4A90D9", flexShrink:0 }}><LayoutIcon /></div>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:14, fontWeight:600, color:"#1a2332" }}>{item.name}</div>
+                            <div style={{ fontSize:12, color:"#7a8599", marginTop:2 }}>{item.description}</div>
+                          </div>
+                          <button onClick={(e)=>{e.stopPropagation();goToWorkflow(2);}} style={{...secondaryBtnSmallStyle,display:"flex",alignItems:"center",gap:3}}><DownloadIcon /> Export</button>
+                          <div style={{ color:"#c4cad4" }}><ChevronRight /></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Favorites + Recent */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24 }}>
+                <div>
+                  <div style={{ fontSize:15, fontWeight:600, marginBottom:14, display:"flex", alignItems:"center", gap:8 }}><StarIcon filled={true} size={16} /> Favorite Analyses</div>
+                  <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                    {favoriteFilters.map((sf,i)=>(
+                      <div key={sf.id} className="filter-card-hover" onClick={()=>goToWorkflow(1)} style={{ background:"#fff", border:"1px solid #e8eaed", borderRadius:10, padding:"16px 18px", cursor:"pointer" }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                          <StarIcon filled={true} size={14} />
+                          <div style={{ flex:1 }}><div style={{ fontSize:14, fontWeight:600 }}>{sf.name}</div><div style={{ fontSize:12, color:"#7a8599", marginTop:3 }}>{sf.description}</div></div>
+                          <div style={{ color:"#c4cad4" }}><ChevronRight /></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize:15, fontWeight:600, marginBottom:14, display:"flex", alignItems:"center", gap:8 }}><ClockIcon /> Recently Used</div>
+                  <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                    {SAVED_FILTERS.slice(0,4).map((sf,i)=>(
+                      <div key={sf.id} className="filter-card-hover" onClick={()=>goToWorkflow(1)} style={{ background:"#fff", border:"1px solid #e8eaed", borderRadius:10, padding:"16px 18px", cursor:"pointer" }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                          <div style={{ width:32, height:32, borderRadius:8, background:"#f4f5f7", display:"flex", alignItems:"center", justifyContent:"center", color:"#7a8599", flexShrink:0 }}><FolderIcon /></div>
+                          <div style={{ flex:1 }}><div style={{ fontSize:14, fontWeight:600 }}>{sf.name}</div><div style={{ fontSize:12, color:"#a0a9b8", marginTop:2, display:"flex", alignItems:"center", gap:4 }}><ClockIcon /> {sf.lastUsed} &middot; {sf.author}</div></div>
+                          <div style={{ color:"#c4cad4" }}><ChevronRight /></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      /* ===== WORKFLOW VIEW ===== */
+      return (
+        <div>
+          <Header />
+          <NavBar />
+          <div style={{ padding:"24px 32px", maxWidth:1200, margin:"0 auto" }}>
+            {/* STEP 1 */}
+            {step===0&&(
+              <div style={{ display:"flex", gap:24 }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ display:"flex", gap:8, marginBottom:20 }}><button onClick={()=>setShowSaved(!showSaved)} style={secondaryBtnStyle}><FolderIcon /> Saved Filters</button></div>
+                  {showSaved&&(
+                    <div style={cardStyle}>
+                      <div style={{ fontSize:14, fontWeight:600, marginBottom:12, display:"flex", alignItems:"center", gap:8 }}><FolderIcon /> Saved Filter Sets</div>
+                      {SAVED_FILTERS.map(sf=>(
+                        <div key={sf.id} className="filter-card-hover" style={{ padding:"12px 14px", background:"#f9fafb", borderRadius:8, border:"1px solid #eef0f3", cursor:"pointer", display:"flex", alignItems:"flex-start", gap:10, marginBottom:6 }}>
+                          <div style={{ marginTop:2, flexShrink:0 }}><StarIcon filled={sf.starred} /></div>
+                          <div style={{ flex:1 }}><div style={{ fontSize:13, fontWeight:600 }}>{sf.name}</div><div style={{ fontSize:12, color:"#7a8599", marginTop:2 }}>{sf.description}</div><div style={{ fontSize:11, color:"#a0a9b8", marginTop:4 }}>{sf.author} &middot; {sf.date}</div></div>
+                          <button style={secondaryBtnSmallStyle}>Load</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div style={cardStyle}>
+                    <div style={{ fontSize:14, fontWeight:600, marginBottom:12 }}>Time Period</div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      {[2025,2024,2023,2022,2021].map(y=>(<button key={y} onClick={()=>toggleYear(y)} style={{ padding:"6px 16px", borderRadius:20, border:years.includes(y)?"1.5px solid #4A90D9":"1.5px solid #dde0e6", background:years.includes(y)?"#EBF3FC":"#fff", color:years.includes(y)?"#2B6CB0":"#5a6577", fontSize:13, fontWeight:years.includes(y)?600:400, cursor:"pointer", fontFamily:"'DM Sans', sans-serif" }}>{y}</button>))}
+                    </div>
+                  </div>
+                  <div style={cardStyle}>
+                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:12 }}><div style={{ fontSize:14, fontWeight:600 }}>Filters</div><div style={{ fontSize:12, color:"#7a8599" }}>{activeFilters.length>0&&activeFilters.length+" active"}</div></div>
+                    <div style={{ fontSize:12, color:"#7a8599", marginBottom:12 }}>Show cases where...</div>
+                    {filters.map(f=><FilterRow key={f.id} filter={f} onRemove={()=>removeFilter(f.id)} onUpdate={nf=>updateFilter(f.id,nf)} />)}
+                    <button onClick={addFilter} style={{...textBtnStyle,marginTop:10}}><PlusIcon /> Add condition</button>
+                  </div>
+                  {/* Save + Add to Dashboard */}
+                  <div style={{ display:"flex", gap:8, marginTop:16, alignItems:"center", flexWrap:"wrap" }}>
+                    <button style={secondaryBtnStyle}>Save Filter Set</button>
+                    <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:13, color:"#5a6577", cursor:"pointer", padding:"8px 12px", borderRadius:8, border:"1.5px solid "+(addToDash?"#4A90D9":"#dde0e6"), background:addToDash?"#EBF3FC":"#fff", transition:"all 0.15s" }} onClick={()=>setAddToDash(!addToDash)}>
+                      <div style={{ width:16, height:16, borderRadius:4, border:addToDash?"none":"1.5px solid #c4cad4", background:addToDash?"#4A90D9":"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>{addToDash&&<CheckIcon />}</div>
+                      Add to my Dashboard
+                    </label>
+                    <button style={textBtnStyle} onClick={()=>setFilters([])}>Clear All</button>
+                  </div>
+                </div>
+                <div style={{ width:340 }}>
+                  <div style={{...cardStyle,background:"linear-gradient(135deg, #0f2b4a 0%, #1d4872 100%)",color:"#fff",border:"none"}}>
+                    <div style={{ fontSize:12, opacity:0.6, textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:8 }}>Live Preview</div>
+                    <div style={{ fontSize:42, fontFamily:"'Instrument Serif', Georgia, serif" }}>74</div>
+                    <div style={{ fontSize:13, opacity:0.7, marginBottom:16 }}>matching cases</div>
+                    <div style={{ borderTop:"1px solid rgba(255,255,255,0.15)", paddingTop:14, display:"flex", flexDirection:"column", gap:8 }}>
+                      {[["Tumors",75],["R0 Resections",39],["R1 Resections",2]].map(([l,v])=>(<div key={l} style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ opacity:0.6 }}>{l}</span><span>{v}</span></div>))}
+                    </div>
+                  </div>
+                  <div style={{...cardStyle,marginTop:16}}>
+                    <div style={{ fontSize:12, color:"#7a8599", textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:12 }}>Active Filters</div>
+                    {activeFilters.length===0?(<div style={{ fontSize:13, color:"#a0a9b8", fontStyle:"italic" }}>No filters applied</div>):(
+                      <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                        {activeFilters.map(f=>{
+                          const fl=Object.values(FIELD_CATEGORIES).flat().find(fi=>fi.id===f.field)?.label||f.field;
+                          return (<div key={f.id} style={{ padding:"6px 10px", background:"#EBF3FC", borderRadius:6, fontSize:12, color:"#2B6CB0", display:"flex", alignItems:"center", justifyContent:"space-between" }}><span><strong>{fl}</strong> {f.operator} {f.value}</span><button onClick={()=>removeFilter(f.id)} style={{...iconBtnSmallStyle,color:"#2B6CB0"}}><XIcon /></button></div>);
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* STEP 2 - with interactive charts */}
+            {step===1&&(
+              <div>
+                {/* Active chart filters banner */}
+                {chartFilterCount>0&&(
+                  <div style={{ background:"#EBF3FC", border:"1px solid #c4d6ea", borderRadius:10, padding:"10px 16px", marginBottom:16, display:"flex", alignItems:"center", gap:8, animation:"fadeIn 0.2s ease" }}>
+                    <FilterIcon /><span style={{ fontSize:13, color:"#2B6CB0", fontWeight:500 }}>{chartFilterCount} visual filter{chartFilterCount>1?"s":""} active</span>
+                    <div style={{ display:"flex", gap:6, marginLeft:8 }}>
+                      {Object.entries(chartFilters).filter(([k,v])=>v).map(([k,v])=>(<span key={k} style={{ padding:"2px 8px", background:"#fff", borderRadius:4, fontSize:11, color:"#2B6CB0", border:"1px solid #c4d6ea" }}>{v} <button onClick={()=>toggleChartFilter(k,v)} style={{...iconBtnSmallStyle,color:"#2B6CB0",marginLeft:2}}><XIcon /></button></span>))}
+                    </div>
+                    <button onClick={()=>setChartFilters({})} style={{...textBtnStyle,fontSize:12,marginLeft:"auto"}}>Clear all</button>
+                  </div>
+                )}
+                <div style={{ display:"flex", gap:14, marginBottom:24 }}>
+                  <KPICard label="Total Cases" value="74" sub="2025" color="#4A90D9" />
+                  <KPICard label="R0 Resections" value="39" sub="52.7% of cases" color="#34C17B" />
+                  <KPICard label="Median Age" value="58" sub="Range: 29\u201387" color="#E8A838" />
+                  <KPICard label="Operated" value="66" sub="88.7% of cases" color="#7C6EE7" />
+                </div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:16, marginBottom:24 }}>
+                  <div style={cardStyle}>
+                    <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Primary Diagnosis</div>
+                    <MiniBar data={[{label:"Invasive ca.",value:67,pct:"90.4"},{label:"In situ ca.",value:4,pct:"5.8"},{label:"No carcinoma",value:3,pct:"3.9"}]} colors={["#4A90D9","#6AAEE6","#A8CEF0"]} onBarClick={(l)=>toggleChartFilter("diag",l)} activeFilter={chartFilters.diag} />
+                    <div style={{ fontSize:11, color:"#a0a9b8", marginTop:10, fontStyle:"italic" }}>Click any bar to filter</div>
+                  </div>
+                  <div style={cardStyle}>
+                    <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Surgery Type</div>
+                    <MiniBar data={[{label:"Breast-cons.",value:58,pct:"78.7"},{label:"Mastectomy",value:8,pct:"10.6"},{label:"Mast. + recon.",value:6,pct:"8.5"},{label:"Other",value:2,pct:"2.1"}]} colors={["#34C17B","#5DD9A0","#8AE6BE","#C0F0DB"]} onBarClick={(l)=>toggleChartFilter("surgery",l)} activeFilter={chartFilters.surgery} />
+                    <div style={{ fontSize:11, color:"#a0a9b8", marginTop:10, fontStyle:"italic" }}>Click any bar to filter</div>
+                  </div>
+                  <div style={cardStyle}>
+                    <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Tumor Stage</div>
+                    <MiniBar data={[{label:"Tis",value:4,pct:"5.4"},{label:"T1",value:28,pct:"37.8"},{label:"T2",value:10,pct:"13.5"},{label:"T3",value:2,pct:"2.7"}]} colors={["#E8A838","#F0BE5C","#F5D488","#FAE8B8"]} onBarClick={(l)=>toggleChartFilter("stage",l)} activeFilter={chartFilters.stage} />
+                    <div style={{ fontSize:11, color:"#a0a9b8", marginTop:10, fontStyle:"italic" }}>Click any bar to filter</div>
+                  </div>
+                </div>
+                {/* Cases Table */}
+                <div style={cardStyle}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+                    <div style={{ fontSize:14, fontWeight:600 }}>Individual Cases</div>
+                    <div style={{ display:"flex", gap:8, alignItems:"center" }}><div style={{ position:"relative" }}><input placeholder="Search cases..." style={{...inputStyle,width:200,paddingLeft:32}} /><span style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:"#a0a9b8" }}><SearchIcon /></span></div><button onClick={()=>setStep(2)} style={{...primaryBtnStyle,fontSize:13}}><DownloadIcon /> Export</button></div>
+                  </div>
+                  <div style={{ overflowX:"auto" }}>
+                    <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
+                      <thead><tr style={{ borderBottom:"2px solid #e8eaed" }}>{["Nr.","PID","Date","Birth Year","Diagnosis","Surgery","Resection","Stage"].map(h=>(<th key={h} style={{ textAlign:"left", padding:"10px 12px", color:"#7a8599", fontWeight:500, fontSize:12, textTransform:"uppercase", letterSpacing:"0.03em" }}>{h}</th>))}<th style={{ width:40 }}></th></tr></thead>
+                      <tbody>{SAMPLE_CASES.map(c=>(
+                        <tr key={c.nr} style={{ borderBottom:"1px solid #f4f5f7", cursor:"pointer", transition:"background 0.1s" }} onMouseEnter={(e)=>e.currentTarget.style.background="#f9fafb"} onMouseLeave={(e)=>e.currentTarget.style.background="transparent"}>
+                          <td style={cellStyle}>{c.nr}</td><td style={{...cellStyle,fontFamily:"'DM Mono', monospace",fontSize:12}}>{c.pid}</td><td style={cellStyle}>{c.date}</td><td style={cellStyle}>{c.birthYear}</td><td style={cellStyle}>{c.diagnosis}</td><td style={cellStyle}>{c.surgery}</td>
+                          <td style={cellStyle}><span style={{ padding:"2px 8px", borderRadius:10, fontSize:11, fontWeight:600, background:c.resection==="R0"?"#E8F8EF":"#FFF3E0", color:c.resection==="R0"?"#1B8A4A":"#C67600" }}>{c.resection}</span></td>
+                          <td style={cellStyle}>{c.stage}</td><td style={{...cellStyle,color:"#4A90D9",fontWeight:500,fontSize:12}}>Edit</td>
+                        </tr>
+                      ))}</tbody>
+                    </table>
+                  </div>
+                  <div style={{ marginTop:12, fontSize:12, color:"#7a8599" }}>Showing 8 of 74 cases</div>
+                </div>
+              </div>
+            )}
+            {/* STEP 3 - with pre-defined reports tab */}
+            {step===2&&(
+              <div style={{ display:"flex", gap:24 }}>
+                <div style={{ flex:1 }}>
+                  {/* Tab switcher: Custom Fields vs Pre-defined Reports */}
+                  <div style={{ display:"flex", gap:0, marginBottom:16 }}>
+                    {[{key:"fields",label:"Custom Field Export",icon:DownloadIcon},{key:"reports",label:"Pre-defined Reports",icon:FileTextIcon}].map(tab=>(
+                      <button key={tab.key} onClick={()=>setExportTab(tab.key)} style={{ padding:"10px 20px", border:"1.5px solid #dde0e6", borderBottom:exportTab===tab.key?"3px solid #4A90D9":"1.5px solid #dde0e6", background:exportTab===tab.key?"#fff":"#f9fafb", color:exportTab===tab.key?"#1a2332":"#7a8599", fontSize:13, fontWeight:exportTab===tab.key?600:400, cursor:"pointer", fontFamily:"'DM Sans', sans-serif", display:"flex", alignItems:"center", gap:6, borderRadius:exportTab===tab.key?"10px 10px 0 0":"10px 10px 0 0", marginRight:-1 }}><tab.icon /> {tab.label}</button>
+                    ))}
+                  </div>
+
+                  {exportTab==="fields"&&(
+                    <div style={cardStyle}>
+                      <div style={{ fontSize:14, fontWeight:600, marginBottom:4 }}>Select Fields to Export</div>
+                      <div style={{ fontSize:12, color:"#7a8599", marginBottom:16 }}>Choose which data points to include.</div>
+                      <div style={{ position:"relative", marginBottom:16 }}><input placeholder="Search fields..." value={fieldSearch} onChange={(e)=>setFieldSearch(e.target.value)} style={{...inputStyle,width:"100%",paddingLeft:32}} /><span style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:"#a0a9b8" }}><SearchIcon /></span></div>
+                      {Object.entries(EXPORT_FIELD_GROUPS).map(([group,fields])=>{
+                        const ff=fields.filter(f=>!fieldSearch||f.toLowerCase().includes(fieldSearch.toLowerCase()));
+                        if(!ff.length) return null;
+                        const allSel=ff.every(f=>exportFields.includes(f));
+                        return (
+                          <div key={group} style={{ marginBottom:16 }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8, cursor:"pointer" }} onClick={()=>toggleAllGroup(ff)}>
+                              <div style={{ width:18, height:18, borderRadius:4, border:allSel?"none":"1.5px solid #c4cad4", background:allSel?"#4A90D9":"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>{allSel&&<CheckIcon />}</div>
+                              <span style={{ fontSize:13, fontWeight:600 }}>{group}</span>
+                            </div>
+                            <div style={{ display:"flex", flexWrap:"wrap", gap:6, paddingLeft:26 }}>
+                              {ff.map(f=>{const sel=exportFields.includes(f);return(<button key={f} onClick={()=>toggleExportField(f)} style={{ padding:"5px 12px", borderRadius:6, border:sel?"1.5px solid #4A90D9":"1.5px solid #dde0e6", background:sel?"#EBF3FC":"#fff", color:sel?"#2B6CB0":"#5a6577", fontSize:12, cursor:"pointer", fontFamily:"'DM Sans', sans-serif" }}>{sel&&<span style={{ marginRight:4 }}>{"\u2713"}</span>}{f}</button>);})}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {exportTab==="reports"&&(
+                    <div style={cardStyle}>
+                      <div style={{ fontSize:14, fontWeight:600, marginBottom:4 }}>Pre-defined Report Templates</div>
+                      <div style={{ fontSize:12, color:"#7a8599", marginBottom:16 }}>Export your data into standardized, pre-structured Excel reports by Adjumed.</div>
+                      <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                        {PREDEFINED_REPORTS.map(rpt=>(
+                          <div key={rpt.id} className="filter-card-hover" style={{ padding:"16px 18px", background:"#f9fafb", borderRadius:10, border:"1px solid #eef0f3", cursor:"pointer", display:"flex", alignItems:"center", gap:14 }}>
+                            <div style={{ width:40, height:40, borderRadius:10, background:"#e8f5e9", display:"flex", alignItems:"center", justifyContent:"center", color:"#2e7d32", flexShrink:0 }}><FileTextIcon /></div>
+                            <div style={{ flex:1 }}>
+                              <div style={{ fontSize:14, fontWeight:600, color:"#1a2332" }}>{rpt.name}</div>
+                              <div style={{ fontSize:12, color:"#7a8599", marginTop:2 }}>{rpt.description}</div>
+                            </div>
+                            <span style={{ fontSize:11, color:"#a0a9b8", flexShrink:0 }}>{rpt.version}</span>
+                            <button style={{...primaryBtnStyle,fontSize:12,padding:"6px 14px"}}><DownloadIcon /> Generate</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div style={{ width:340 }}>
+                  <div style={cardStyle}>
+                    <div style={{ fontSize:14, fontWeight:600, marginBottom:12 }}>Export Summary</div>
+                    <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:16 }}>
+                      {[["Cases","74"],["Fields",String(exportFields.length)],["Filters","1 active"]].map(([l,v])=>(<div key={l} style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#7a8599" }}>{l}</span><span style={{ fontWeight:600 }}>{v}</span></div>))}
+                    </div>
+                    {exportTab==="fields"&&(<React.Fragment>
+                      <div style={{ fontSize:12, color:"#7a8599", marginBottom:8 }}>Selected fields:</div>
+                      <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginBottom:20 }}>{exportFields.map(f=><span key={f} style={{ padding:"3px 8px", background:"#f4f5f7", borderRadius:4, fontSize:11, color:"#5a6577" }}>{f}</span>)}</div>
+                    </React.Fragment>)}
+                    <div style={{ fontSize:13, fontWeight:600, marginBottom:10 }}>Format</div>
+                    <div style={{ display:"flex", gap:8, marginBottom:20 }}>
+                      {["Excel (.xlsx)","CSV","PDF"].map((fmt,i)=>(<button key={fmt} style={{ padding:"8px 16px", borderRadius:8, border:i===0?"1.5px solid #4A90D9":"1.5px solid #dde0e6", background:i===0?"#EBF3FC":"#fff", color:i===0?"#2B6CB0":"#5a6577", fontSize:13, fontWeight:i===0?600:400, cursor:"pointer", fontFamily:"'DM Sans', sans-serif" }}>{fmt}</button>))}
+                    </div>
+                    <button style={{...primaryBtnStyle,width:"100%",justifyContent:"center",padding:"12px 20px",fontSize:14}}><DownloadIcon /> Download Export</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
