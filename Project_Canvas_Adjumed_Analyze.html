@@ -297,7 +297,7 @@
         <span class="badge badge-b">B: CHF 13.600–31.200</span>
       </div>
       <ul style="margin-top:6px;">
-        <li>UX/UI-Expert:in: <span class="highlight">A:</span> 2–3 Wo. · <span class="highlight">B:</span> 3–5 Tage + Junior intern</li>
+        <li>UX/UI-Expert:in: <span class="highlight">A:</span> 2–3 Wo. · <span class="highlight">B:</span> 3–5 Tage</li>
         <li>Externer Frontend-Entwickler: A: CHF 15–25k · B: evtl. entfällt</li>
         <li>.NET-Architektur-Review: CHF 5–10k (beide Varianten)</li>
       </ul>
@@ -316,17 +316,19 @@
       <p class="sub-header">Kernteam</p>
       <ul>
         <li><span class="highlight">CV</span> – Projektleiter, Architekt, Tester (~10 h/Wo.)</li>
-        <li><span class="highlight">LF</span> – Projektleitung (~5 h/Wo.)</li>
+        <li><span class="highlight">LF</span> – Projektleitung, Junior UI/UX-Entwickler:in (~5 h/Wo.)</li>
         <li><span class="highlight">CM</span> – Lead Developer API + Frontend (~5 h/Wo.)</li>
-        <li><span class="highlight">IW</span> – System-Architekt, Infrastruktur (~2–3 h/Wo.) ⚠️ Engpass</li>
+
       </ul>
       <p class="sub-header">Erweitertes Team</p>
       <ul>
-        <li>UX/UI-Expert:in (extern, 3–5 Tage)</li>
-        <li>Junior UI/UX-Entwickler:in (intern, Figma AI)</li>
+        <li><span class="highlight">CR</span> – Head of Operations, Steering (~1,5 h/Mo.)</li>
+        <li><span class="highlight">LR</span> – CEO, Executive Sponsor (~45 Min./Quartal)</li>
       </ul>
       <p class="sub-header">Externe Partner</p>
       <ul>
+        <li><span class="highlight">IW</span> – System-Architekt, Infrastruktur (~2–3 h/Wo.) ⚠️ Engpass</li>
+        <li>UX/UI-Expert:in (extern, 3–5 Tage)</li>
         <li>.NET-Architektur-Reviewer (1–2 Tage)</li>
       </ul>
     </div>
@@ -356,7 +358,7 @@
       <div class="card-label"><span class="icon">🏁</span> Etappenziele</div>
       <ul>
         <li><span class="highlight">Gate 0a:</span> GetExpression-Logik dokumentiert; Feldmapping AQC validiert; ADR genehmigt</li>
-        <li><span class="highlight">Gate 0b:</span> 3 PoC-Endpunkte korrekt + performant; Mandantentrennung sicher; Go/No-Go Demo</li>
+        <li><span class="highlight">Gate 0b:</span> 3 PoC-Endpunkte (z.B. /auth/token, /query, /filters) korrekt + performant; Mandantentrennung sicher; Go/No-Go Demo</li>
         <li><span class="highlight">Gate 1:</span> Produktionsreife API; React-Frontend Filtern → Analysieren → Export End-to-End</li>
         <li><span class="highlight">Gate 2:</span> Dashboard, Charts, Pilotergebnisse 3–5 Kliniken; Feedbackbericht</li>
         <li><span class="highlight">Gate 3:</span> 100% Migration; Altsystem abgeschaltet</li>
@@ -376,13 +378,13 @@
         <li>Gefühlte Ladezeit ≤ 50 % des Altsystems</li>
         <li>Exportgenerierung ≤ 10 Sek.</li>
         <li>Verfügbarkeit ≥ 99,5 %</li>
-        <li>Support-Tickets ≤ 50 % der aktuellen Analyze-Tickets</li>
+        <li>Support-Aufwand ≤ 50 % der aktuellen Analyze-Anfragen</li>
         <li>Pilotfeedback ≥ 4,0/5,0</li>
       </ul>
       <p class="sub-header">Qualitativ</p>
       <ul>
         <li>Klartext-Filter ohne Feldcode-Kenntnisse</li>
-        <li>Alle Reports (EUSOMA, DKG, SBCDB, AQC) identische Ergebnisse</li>
+        <li>Alle Reports (HSM, Uro, Endo, SBCDB, AQC) identische Ergebnisse</li>
         <li>Keine Datenverluste, keine Sicherheitslücken</li>
       </ul>
     </div>
@@ -393,7 +395,6 @@
       <ul>
         <li><span class="highlight">Infrastruktur:</span> Hochsicherheits-RZ Glattbrugg; IIS 10.0; Windows Server 2016/2019; Azure DevOps CI/CD</li>
         <li><span class="highlight">Datenbanken:</span> MS SQL Server – Analyze-DB (flache Tabellen, ~41 GB, 200+ Tabellen); Staging-Umgebung (stage.adjumed.net)</li>
-        <li><span class="highlight">Bestehende API-Doku:</span> SOAP/WCF V1.94 – Referenz für Auth-Muster (Token + E-Mail-2FA)</li>
         <li><span class="highlight">Feldmapping:</span> Dokumentierte Zuordnung Feld-ID → Tabelle → Spalte</li>
         <li><span class="highlight">AI-Tooling (Var. B):</span> Claude Code + Agent Teams (Opus 4.6, 1M-Kontext); Figma Make + MCP-Server; Figma AI für UI-Generierung</li>
         <li><span class="highlight">Software:</span> React 18, TypeScript, Vite, .NET 8 Minimal API, EPPlus/ClosedXML, Recharts/Chart.js</li>
@@ -427,10 +428,9 @@
       <ul>
         <li>Moderne <span class="highlight">React 18 + TypeScript</span> Analyse-Plattform mit 3-Schritt-Workflow</li>
         <li><span class="highlight">.NET 8 REST API</span> mit Metadaten-Service, JSON-Filterformat, JWT-Auth</li>
-        <li>Dashboard mit konfigurierbaren Kacheln, Live-Charts, Benchmark-Vergleichen</li>
-        <li>Alle Familien migriert (AQC, Brustzentrum, SwissVasc, SMOB, …)</li>
+        <li>ICBS-kompatibles Dashboard mit konfigurierbaren Kacheln, Live-Charts, Benchmark-Vergleichen</li>
+        <li>Alle Familien und Subfamilien migriert (AQC (inkl. Vis, etc.), Brustzentrum, SwissVasc, …)</li>
         <li>Vordefinierte Reports (EUSOMA, DKG, SBCDB, AQC) + benutzerdefinierte Exporte</li>
-        <li>Master-Thesis-Kapitel (CV)</li>
       </ul>
     </div>
 
@@ -439,12 +439,12 @@
       <div class="card-label"><span class="icon">🏥</span> Kunde</div>
       <p class="sub-header">Eigentümer</p>
       <ul>
-        <li>Adjumed Services AG – Management</li>
+        <li>Adjumed Services AG – LR</li>
       </ul>
       <p class="sub-header">Empfänger</p>
       <ul>
         <li>Kliniken schweizweit (Analyse-Benutzer)</li>
-        <li>Registrierungs-Power-User (Brustzentrum, AQC, SwissVasc)</li>
+        <li>Power-User (Brustzentrum, AQC, SwissVasc)</li>
       </ul>
       <p class="sub-header">Sponsor</p>
       <ul>
