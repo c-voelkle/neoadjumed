@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Canvas — Modernisierung Adjumed Analyze</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B365D;
+    --blue: #2E5090;
+    --accent: #3B7DD8;
+    --light-blue: #D6E4F0;
+    --lighter-blue: #EBF0F8;
+    --orange: #E8720C;
+    --gold: #D4A843;
+    --red: #C0392B;
+    --green: #27854A;
+    --teal: #1A8A7D;
+    --purple: #6C4FA0;
+    --pink: #C05882;
+    --warm-gray: #F5F3F0;
+    --text: #2C2C2C;
+    --text-light: #5A5A5A;
+    --border: #D8D4CE;
+    --card-bg: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--warm-gray);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .canvas-wrapper {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 28px 32px 24px;
+  }
+
+  /* --- Header --- */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 3px solid var(--navy);
+  }
+  .header-left h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .header-left .subtitle {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-top: 4px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .header-right {
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.7;
+  }
+  .header-right strong { color: var(--text); font-weight: 700; }
+
+  /* --- Grid --- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: auto auto auto auto auto;
+    gap: 10px;
+  }
+
+  /* --- Card base --- */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 16px 18px 14px;
+    border: 1.5px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-label .icon {
+    font-size: 14px;
+    opacity: 0.85;
+  }
+
+  .card p, .card li {
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--text-light);
+  }
+  .card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .card li {
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 3px;
+  }
+  .card li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.35;
+  }
+  .card .highlight {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .card .sub-header {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 8px;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  /* Color accents per card */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 4px;
+  }
+  .card.zweck::before { background: var(--navy); }
+  .card.budget::before { background: var(--gold); }
+  .card.team::before { background: var(--orange); }
+  .card.umfeld::before { background: var(--teal); }
+  .card.etappen::before { background: var(--green); }
+  .card.qualitaet::before { background: var(--purple); }
+  .card.ressourcen::before { background: var(--pink); }
+  .card.risiken::before { background: var(--red); }
+  .card.ergebnis::before { background: var(--accent); }
+  .card.kunde::before { background: var(--navy); }
+  .card.zeit::before { background: var(--teal); }
+
+  .card.zweck .card-label { color: var(--navy); }
+  .card.budget .card-label { color: var(--gold); }
+  .card.team .card-label { color: var(--orange); }
+  .card.umfeld .card-label { color: var(--teal); }
+  .card.etappen .card-label { color: var(--green); }
+  .card.qualitaet .card-label { color: var(--purple); }
+  .card.ressourcen .card-label { color: var(--pink); }
+  .card.risiken .card-label { color: var(--red); }
+  .card.ergebnis .card-label { color: var(--accent); }
+  .card.kunde .card-label { color: var(--navy); }
+  .card.zeit .card-label { color: var(--teal); }
+
+  /* --- Layout placement --- */
+  .zweck { grid-column: 1 / -1; }
+
+  .budget { grid-column: 1 / 2; grid-row: 2; }
+  .team { grid-column: 2 / 3; grid-row: 2; }
+  .umfeld { grid-column: 3 / 4; grid-row: 2; }
+  .etappen { grid-column: 4 / 5; grid-row: 2; }
+  .qualitaet { grid-column: 5 / 6; grid-row: 2; }
+
+  .ergebnis { grid-column: 4 / 5; grid-row: 3; }
+  .kunde { grid-column: 5 / 6; grid-row: 3; }
+
+  .ressourcen { grid-column: 1 / 3; grid-row: 3 / 4; }
+  .risiken { grid-column: 3 / 4; grid-row: 3 / 4; }
+
+  .zeit { grid-column: 1 / -1; grid-row: 4; }
+
+  /* --- Variant badges --- */
+  .variant-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .badge-a {
+    background: var(--lighter-blue);
+    color: var(--navy);
+  }
+  .badge-b {
+    background: #E8F5E9;
+    color: var(--green);
+  }
+
+  /* --- Footer --- */
+  .footer {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #999;
+  }
+
+  /* --- Print --- */
+  @media print {
+    body { background: white; }
+    .canvas-wrapper { padding: 12px; }
+    .card:hover { box-shadow: none; }
+    .grid { gap: 6px; }
+    .card { padding: 10px 12px 8px; }
+  }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto;
+    }
+    .zweck, .zeit { grid-column: 1 / -1; }
+    .budget, .team, .umfeld, .etappen, .qualitaet,
+    .ressourcen, .risiken, .ergebnis, .kunde {
+      grid-column: auto;
+      grid-row: auto;
+    }
+  }
+  @media (max-width: 700px) {
+    .grid { grid-template-columns: 1fr; }
+    .zweck, .zeit { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="canvas-wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Project Canvas</h1>
+      <div class="subtitle">Modernisierung Adjumed Analyze</div>
+    </div>
+    <div class="header-right">
+      <strong>Erstellt von:</strong> Curtis Völkle (CV)<br>
+      <strong>Wo/Wann:</strong> Adjumed Services AG · März 2026<br>
+      <strong>Varianten:</strong> A (Baseline) &amp; B (AI-beschleunigt)
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid">
+
+    <!-- ZWECK -->
+    <div class="card zweck">
+      <div class="card-label"><span class="icon">🎯</span> Zweck</div>
+      <p>
+        Die bestehende Adjumed-Analyze-Plattform basiert auf <span class="highlight">AngularJS + jQuery 1.7.2</span> mit einer <span class="highlight">VB.NET WebForms</span>-Middleware (ca. 250.000–400.000 LOC) – Technologien ohne aktive Weiterentwicklung. Die gesamte Geschäftslogik (Filter, Abfragen, Exporte) ist im Code-Behind eingebettet, ohne API-Schicht. 
+        Das Projekt modernisiert die Analyseplattform zu einer zeitgemässen Architektur (<span class="highlight">React 18 + TypeScript → .NET 8 REST API → SQL Server</span>) mittels Strangler-Fig-Pattern. Damit wird die Grundlage geschaffen für langfristige Wartbarkeit, zukünftige Erweiterungen (Mobile, KI-Funktionen) und eine verbesserte Benutzererfahrung für Kliniken schweizweit.
+      </p>
+    </div>
+
+    <!-- BUDGET -->
+    <div class="card budget">
+      <div class="card-label"><span class="icon">💰</span> Budget</div>
+      <p class="sub-header">Externe Kosten</p>
+      <div class="variant-row">
+        <span class="badge badge-a">A: CHF 28.000–50.000</span>
+        <span class="badge badge-b">B: CHF 13.600–31.200</span>
+      </div>
+      <ul style="margin-top:6px;">
+        <li>UX/UI-Expert:in: <span class="highlight">A:</span> 2–3 Wo. · <span class="highlight">B:</span> 3–5 Tage + Junior intern</li>
+        <li>Externer Frontend-Entwickler: A: CHF 15–25k · B: evtl. entfällt</li>
+        <li>.NET-Architektur-Review: CHF 5–10k (beide Varianten)</li>
+      </ul>
+      <p class="sub-header">AI-Tooling (nur Variante B)</p>
+      <ul>
+        <li>2× Claude Max $200/Mo.: ~CHF 4.680/Projekt</li>
+        <li>1× Claude Pro $20/Mo.: ~CHF 234/Projekt</li>
+        <li>API-Credits: ~CHF 650–1.300</li>
+        <li><span class="highlight">Total AI: CHF 5.600–6.200</span></li>
+      </ul>
+    </div>
+
+    <!-- TEAM -->
+    <div class="card team">
+      <div class="card-label"><span class="icon">👥</span> Team</div>
+      <p class="sub-header">Kernteam</p>
+      <ul>
+        <li><span class="highlight">CV</span> – Projektleiter, Architekt, Tester (~10 h/Wo.)</li>
+        <li><span class="highlight">LF</span> – Projektleitung (~5 h/Wo.)</li>
+        <li><span class="highlight">CM</span> – Lead Developer API + Frontend (~5 h/Wo.)</li>
+        <li><span class="highlight">IW</span> – System-Architekt, Infrastruktur (~2–3 h/Wo.) ⚠️ Engpass</li>
+      </ul>
+      <p class="sub-header">Erweitertes Team</p>
+      <ul>
+        <li>UX/UI-Expert:in (extern, 3–5 Tage)</li>
+        <li>Junior UI/UX-Entwickler:in (intern, Figma AI)</li>
+      </ul>
+      <p class="sub-header">Externe Partner</p>
+      <ul>
+        <li>.NET-Architektur-Reviewer (1–2 Tage)</li>
+      </ul>
+    </div>
+
+    <!-- UMFELD -->
+    <div class="card umfeld">
+      <div class="card-label"><span class="icon">🌊</span> Umfeld</div>
+      <p class="sub-header">Rückenwind</p>
+      <ul>
+        <li>React bereits in Collect/Validate im Einsatz</li>
+        <li>.NET 8 als strategische Richtung etabliert</li>
+        <li>Analyze-DB (flache Tabellen) deutlich einfacher als Collect-DB (EAV)</li>
+        <li>Publish-Prozess bleibt unverändert – kein Risiko</li>
+        <li>Frontier-KI-Coding-Tools erstmals produktionsreif (Claude Code Agent Teams)</li>
+      </ul>
+      <p class="sub-header">Gegenwind</p>
+      <ul>
+        <li>IW-Verfügbarkeit: nur 2–3 h/Wo. für Reviews + IIS</li>
+        <li>Legacy-Codebasis: 250–400k LOC VB.NET ohne Dokumentation</li>
+        <li>Schweizer Datenschutz: sorgfältige Trennung Mandanten</li>
+        <li>Parallelbetrieb altes/neues System nötig</li>
+      </ul>
+    </div>
+
+    <!-- ETAPPENZIELE -->
+    <div class="card etappen">
+      <div class="card-label"><span class="icon">🏁</span> Etappenziele</div>
+      <ul>
+        <li><span class="highlight">Gate 0a:</span> GetExpression-Logik dokumentiert; Feldmapping AQC validiert; ADR genehmigt</li>
+        <li><span class="highlight">Gate 0b:</span> 3 PoC-Endpunkte korrekt + performant; Mandantentrennung sicher; Go/No-Go Demo</li>
+        <li><span class="highlight">Gate 1:</span> Produktionsreife API; React-Frontend Filtern → Analysieren → Export End-to-End</li>
+        <li><span class="highlight">Gate 2:</span> Dashboard, Charts, Pilotergebnisse 3–5 Kliniken; Feedbackbericht</li>
+        <li><span class="highlight">Gate 3:</span> 100% Migration; Altsystem abgeschaltet</li>
+      </ul>
+      <p class="sub-header" style="margin-top:6px;">Richtungsweisend</p>
+      <ul>
+        <li>Gate 0b entscheidet über Weiterführung des gesamten Projekts</li>
+      </ul>
+    </div>
+
+    <!-- QUALITÄT -->
+    <div class="card qualitaet">
+      <div class="card-label"><span class="icon">✨</span> Qualität</div>
+      <p class="sub-header">Quantitativ</p>
+      <ul>
+        <li>API-Antwortzeit (P95): Preview ≤ 300 ms, Standard ≤ 1,5 s</li>
+        <li>Gefühlte Ladezeit ≤ 50 % des Altsystems</li>
+        <li>Exportgenerierung ≤ 10 Sek.</li>
+        <li>Verfügbarkeit ≥ 99,5 %</li>
+        <li>Support-Tickets ≤ 50 % der aktuellen Analyze-Tickets</li>
+        <li>Pilotfeedback ≥ 4,0/5,0</li>
+      </ul>
+      <p class="sub-header">Qualitativ</p>
+      <ul>
+        <li>Klartext-Filter ohne Feldcode-Kenntnisse</li>
+        <li>Alle Reports (EUSOMA, DKG, SBCDB, AQC) identische Ergebnisse</li>
+        <li>Keine Datenverluste, keine Sicherheitslücken</li>
+      </ul>
+    </div>
+
+    <!-- RESSOURCEN -->
+    <div class="card ressourcen">
+      <div class="card-label"><span class="icon">🔧</span> Ressourcen</div>
+      <ul>
+        <li><span class="highlight">Infrastruktur:</span> Hochsicherheits-RZ Glattbrugg; IIS 10.0; Windows Server 2016/2019; Azure DevOps CI/CD</li>
+        <li><span class="highlight">Datenbanken:</span> MS SQL Server – Analyze-DB (flache Tabellen, ~41 GB, 200+ Tabellen); Staging-Umgebung (stage.adjumed.net)</li>
+        <li><span class="highlight">Bestehende API-Doku:</span> SOAP/WCF V1.94 – Referenz für Auth-Muster (Token + E-Mail-2FA)</li>
+        <li><span class="highlight">Feldmapping:</span> Dokumentierte Zuordnung Feld-ID → Tabelle → Spalte</li>
+        <li><span class="highlight">AI-Tooling (Var. B):</span> Claude Code + Agent Teams (Opus 4.6, 1M-Kontext); Figma Make + MCP-Server; Figma AI für UI-Generierung</li>
+        <li><span class="highlight">Software:</span> React 18, TypeScript, Vite, .NET 8 Minimal API, EPPlus/ClosedXML, Recharts/Chart.js</li>
+      </ul>
+    </div>
+
+    <!-- RISIKEN + CHANCEN -->
+    <div class="card risiken">
+      <div class="card-label"><span class="icon">⚡</span> Risiken + Chancen</div>
+      <p class="sub-header">Gefährden</p>
+      <ul>
+        <li><span class="highlight" style="color:var(--red)">HOCH:</span> IW-Verfügbarkeit → Blockaden bei IIS + Architektur</li>
+        <li><span class="highlight" style="color:var(--red)">HOCH:</span> Mandantentrennung → Datenschutzverletzung</li>
+        <li><span class="highlight" style="color:var(--orange)">MITTEL:</span> Logik-Extraktion VB.NET (Var. B: auf MITTEL herabgestuft)</li>
+        <li><span class="highlight" style="color:var(--orange)">MITTEL:</span> AI-Code-Qualität (Var. B: neues Risiko)</li>
+        <li>Performance neuer API schlechter als Altsystem</li>
+        <li>XML-Filtermigration fehlerhaft</li>
+      </ul>
+      <p class="sub-header">Beflügeln</p>
+      <ul>
+        <li>AI-Tooling multipliziert Output pro Stunde um 2–3×</li>
+        <li>Figma MCP → bidirektionale Design-Code-Pipeline</li>
+        <li>API-Schicht ermöglicht zukünftige KI-Features, Mobile-App</li>
+        <li>Strangler-Fig: kein Big-Bang-Risiko</li>
+      </ul>
+    </div>
+
+    <!-- ERGEBNIS -->
+    <div class="card ergebnis">
+      <div class="card-label"><span class="icon">📦</span> Ergebnis</div>
+      <ul>
+        <li>Moderne <span class="highlight">React 18 + TypeScript</span> Analyse-Plattform mit 3-Schritt-Workflow</li>
+        <li><span class="highlight">.NET 8 REST API</span> mit Metadaten-Service, JSON-Filterformat, JWT-Auth</li>
+        <li>Dashboard mit konfigurierbaren Kacheln, Live-Charts, Benchmark-Vergleichen</li>
+        <li>Alle Familien migriert (AQC, Brustzentrum, SwissVasc, SMOB, …)</li>
+        <li>Vordefinierte Reports (EUSOMA, DKG, SBCDB, AQC) + benutzerdefinierte Exporte</li>
+        <li>Master-Thesis-Kapitel (CV)</li>
+      </ul>
+    </div>
+
+    <!-- KUNDE -->
+    <div class="card kunde">
+      <div class="card-label"><span class="icon">🏥</span> Kunde</div>
+      <p class="sub-header">Eigentümer</p>
+      <ul>
+        <li>Adjumed Services AG – Management</li>
+      </ul>
+      <p class="sub-header">Empfänger</p>
+      <ul>
+        <li>Kliniken schweizweit (Analyse-Benutzer)</li>
+        <li>Registrierungs-Power-User (Brustzentrum, AQC, SwissVasc)</li>
+      </ul>
+      <p class="sub-header">Sponsor</p>
+      <ul>
+        <li>Adjumed Services AG</li>
+      </ul>
+      <p class="sub-header">Potenzielle Konflikte</p>
+      <ul>
+        <li>Power-User vs. Gelegenheitsnutzer (Klartext vs. Feldcodes)</li>
+        <li>Parallelbetrieb: unterschiedliche Ergebnisse verunsichern</li>
+      </ul>
+    </div>
+
+    <!-- ZEIT -->
+    <div class="card zeit">
+      <div class="card-label"><span class="icon">📅</span> Zeit</div>
+      <div style="display:flex; gap:24px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:260px;">
+          <p class="sub-header">Variante A (Baseline)</p>
+          <ul>
+            <li>Start: <span class="highlight">März 2026</span> (Phase 0a)</li>
+            <li>Go/No-Go: Juni 2026</li>
+            <li>Phase 1 (API + UI): Juni–Oktober 2026</li>
+            <li>Phase 2 (Pilot): Nov. 2026 – März 2027</li>
+            <li>Phase 3 (Rollout): Apr.–Juni 2027</li>
+            <li>Abschluss: <span class="highlight">Sommer/Herbst 2027</span></li>
+            <li>Gesamtaufwand: <span class="highlight">~1.480 h</span> (~74 PT)</li>
+          </ul>
+        </div>
+        <div style="flex:1; min-width:260px;">
+          <p class="sub-header" style="color:var(--green);">Variante B (AI-beschleunigt)</p>
+          <ul>
+            <li>Start: <span class="highlight">März 2026</span> (Phase 0a)</li>
+            <li>Go/No-Go: <span class="highlight" style="color:var(--green)">Mai 2026</span> (1 Monat früher)</li>
+            <li>Phase 1 (API + UI): Mai–August 2026</li>
+            <li>Phase 2 (Pilot): Sep. 2026 – Jan. 2027</li>
+            <li>Phase 3 (Rollout): Feb.–April 2027</li>
+            <li>Abschluss: <span class="highlight" style="color:var(--green)">Frühling 2027</span> (3–4 Mo. früher)</li>
+            <li>Gesamtaufwand: <span class="highlight" style="color:var(--green)">~950–1.080 h</span> (~48–54 PT)</li>
+          </ul>
+        </div>
+        <div style="flex:1; min-width:200px;">
+          <p class="sub-header">Flexibilität</p>
+          <ul>
+            <li>Starttermin fix (März 2026)</li>
+            <li>Endtermin flexibel (abhängig von Pilotergebnissen)</li>
+            <li>Hybrid möglich: Phase 0a mit AI starten, dann entscheiden</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>Basierend auf: Over the Fence – The Project Canvas v4.0 (CC BY-SA 4.0)</span>
+    <span>Adjumed Services AG · Vertraulich · März 2026</span>
+  </div>
+
+</div>
+</body>
+</html>
