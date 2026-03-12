@@ -358,7 +358,7 @@
       <div class="card-label"><span class="icon">🏁</span> Etappenziele</div>
       <ul>
         <li><span class="highlight">Gate 0a:</span> VB.NET Codebase analysiert; Geschäftslogik dokumentiert (Pseudocode, Flowchart); ADR genehmigt</li>
-        <li><span class="highlight">Gate 0b:</span> 3 PoC-Endpunkte (z.B. /auth/token, /query, /filters) korrekt + performant; Mandantentrennung sicher; Go/No-Go Demo</li>
+        <li><span class="highlight">Gate 0b:</span> 3 PoC-Endpunkte (z.B. /auth/token, /query, /filters) korrekt + performant; Mandantentrennung sicher; Repository-Interface für Datenbank-Entkopplung; Go/No-Go Demo</li>
         <li><span class="highlight">Gate 1:</span> Produktionsreife API; React-Frontend Filtern → Analysieren → Export End-to-End</li>
         <li><span class="highlight">Gate 2:</span> Dashboard, Charts, Pilotergebnisse 3–5 Kliniken; Feedbackbericht</li>
         <li><span class="highlight">Gate 3:</span> 100% Migration; Altsystem abgeschaltet</li>
@@ -397,7 +397,7 @@
         <li><span class="highlight">Datenbanken:</span> MS SQL Server – Analyze-DB (flache Tabellen, ~41 GB, 200+ Tabellen); Staging-Umgebung (stage.adjumed.net)</li>
         <li><span class="highlight">Feldmapping:</span> Dokumentierte Zuordnung Feld-ID → Tabelle → Spalte</li>
         <li><span class="highlight">AI-Tooling (Var. B):</span> Claude Code + Agent Teams (Opus 4.6, 1M-Kontext); Figma Make + MCP-Server; Figma AI für UI-Generierung</li>
-        <li><span class="highlight">Software:</span> React 18, TypeScript, Vite, .NET 8 Minimal API, EPPlus/ClosedXML, Recharts/Chart.js</li>
+        <li><span class="highlight">Software:</span> React 18 (Frontend-Framework), TypeScript (Programmiersprache), Vite (Build-Tool), Tailwind CSS (Styling), SQL Server (Datenbank) .NET 8 Minimal API (Backend-Framework), Dapper (ORM), LINQ (Datenabfrage), ClosedXML (Excel-Integration), Recharts/Chart.js (Visualisierung)</li>
       </ul>
     </div>
 
@@ -428,7 +428,8 @@
       <ul>
         <li>Moderne <span class="highlight">React 18 + TypeScript</span> Analyse-Plattform mit 3-Schritt-Workflow</li>
         <li><span class="highlight">.NET 8 REST API</span> mit Metadaten-Service, JSON-Filterformat, JWT-Auth</li>
-        <li>ICBS-kompatibles Dashboard mit konfigurierbaren Kacheln, Live-Charts, Benchmark-Vergleichen</li>
+        <li>Einsatz eines <span class="highlight">Repository Patterns</span> (IFamilyRepository) zur Entkopplung von Datenzugriff (Dapper) und Geschäftslogik</li>
+        <li>IBCS-kompatibles Dashboard mit konfigurierbaren Kacheln, Live-Charts, Benchmark-Vergleichen</li>
         <li>Alle Familien und Subfamilien migriert (AQC (inkl. Vis, etc.), Brustzentrum, SwissVasc, …)</li>
         <li>Vordefinierte Reports (EUSOMA, DKG, SBCDB, AQC) + benutzerdefinierte Exporte</li>
       </ul>
