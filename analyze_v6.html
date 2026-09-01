@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Adjumed Analyze — v6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   ADJUMED ANALYZE — v6
+   Tokens 1:1 aus dem Divi-Export-Styleguide (adjumed.json / Styleguide-HTML).
+   Erweiterungen für die Applikation sind mit  ✚ APP  markiert; sie ergänzen
+   den Website-Styleguide, ohne eine seiner Festlegungen zu überschreiben.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Base — Werte aus dem Divi-Export ───────────────────────────────── */
+  --adj-blue: #0061ad;
+  --adj-blue-mid: #99c1df;
+  --adj-blue-grey: #cce0ef;
+  --adj-blue-light: #ebf3f9;
+  --adj-footer-from: #0c71c3;
+  --adj-footer-mid: #0b67b7;
+  --adj-link-blue: #2b87da;
+
+  --adj-orange: #ffaa33;
+  --adj-orange-hover: #ffaa00;
+  --adj-orange-link: #ff9933;
+  --adj-orange-light: #ffcc66;
+  --adj-orange-dark: #e09900;
+
+  --adj-white: #ffffff;
+  --adj-grey-200: #e5e5e5;
+
+  /* ── Semantisch ────────────────────────────────────────────────────── */
+  /* Ab hier sprechen alle Regeln nur noch über Rollen, nie über Farbwerte —
+     genau das macht den Dark-Mode am Ende zu einer reinen Token-Frage. */
+  color-scheme: light;
+
+  --ink-accent: var(--adj-blue);    /* blaue Schrift und Icons auf der Fläche */
+  --text-heading: var(--ink-accent);
+  --text-body: #333333;
+  --text-on-blue: var(--adj-white);
+  --text-link: var(--adj-orange-link);
+  --text-muted: #737373;            /* ✚ APP: aus --chart-caption-color */
+  --text-faint: #9a9a9a;            /* ✚ APP: aus --chart-axis */
+
+  --surface-page: var(--adj-white);
+  --surface-tint: var(--adj-blue-light);
+  --surface-panel: var(--adj-blue-grey);
+  --surface-invert: var(--adj-blue);
+  --surface-app: #f6f9fc;           /* ✚ APP: Arbeitsfläche, 1 Stufe unter --surface-tint */
+  --surface-card: var(--adj-white); /* ✚ APP: Karten, Tabellen, Panels */
+  --surface-raised: var(--adj-white);/* ✚ APP: Eingabefelder und Auswahl-Chips */
+  --overlay-top: rgba(255, 255, 255, .88);
+  --overlay-ctx: rgba(246, 249, 252, .9);
+
+  --border-soft: var(--adj-blue-mid);
+  --border-hair: #e3ecf4;           /* ✚ APP: ruhige Trennlinie für Datenlisten */
+  --border-control: var(--adj-blue-grey);
+  --border-control-strong: var(--adj-blue-mid);
+
+  --warm-tint: #fff4e0;             /* Veränderung, Auswahl, Markierung */
+  --warm-ink: var(--adj-orange-dark);
+  --warm-tint-soft: #fff9ec;
+  --danger-tint: #fff0f0;
+
+  --footer-bg: linear-gradient(180deg, var(--adj-footer-from) 0%, var(--adj-footer-mid) 95%, var(--adj-footer-from) 100%);
+
+  --btn-bg: var(--adj-orange);
+  --btn-bg-hover: var(--adj-orange-hover);
+  --btn-text: var(--adj-white);
+  --btn-primary-bg: var(--adj-blue);
+  --btn-primary-bg-hover: var(--adj-footer-from);
+
+  --nav-text: var(--ink-accent);
+  --nav-text-active: var(--adj-orange);
+
+  /* ── Typografie ────────────────────────────────────────────────────── */
+  --font-body: 'Roboto', Helvetica, Arial, sans-serif;
+  --font-heading: 'Roboto', Helvetica, Arial, sans-serif;
+  --font-button: 'Roboto Condensed', Helvetica, Arial, Lucida, sans-serif;
+
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-bold: 700;
+
+  --fs-body: 18px;
+  --fs-h1: 42px;
+  --fs-h2: 36px;
+  --fs-h3: 30px;
+  --fs-h4: 25px;
+  --fs-h5: 22px;
+  --fs-h6: 19px;
+  --fs-meta: 13px;
+
+  /* ✚ APP: Dichtere Stufen für Applikationsflächen (Tabellen, Chips, Labels).
+     Die Website-Skala oben bleibt für Titel und Fliesstext verbindlich. */
+  --fs-ui: 14px;
+  --fs-ui-sm: 13px;
+  --fs-ui-xs: 11px;
+
+  --lh-heading: 1.2em;
+  --lh-body: 1.7em;
+  --nav-transform: uppercase;
+  --nav-weight: 700;
+
+  /* ── Raster ────────────────────────────────────────────────────────── */
+  --container-max: 1080px;
+  --container-wide: 1180px;
+  --container-app: 1360px;          /* ✚ APP: Datenansichten brauchen Breite */
+
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  --radius-button: 10px;            /* der einzige Radius im Export */
+  --radius-card: 14px;              /* ✚ APP: abgeleitet vom Button-Radius */
+  --radius-pill: 999px;             /* ✚ APP */
+
+  /* ✚ APP: Der Export kennt keine Schatten (--shadow-none). Für eine
+     Applikation mit gestapelten Ebenen sind sie nötig — bewusst sehr weich
+     und blaustichig, damit sie als Teil der Palette lesen. */
+  --shadow-xs: 0 1px 2px rgba(0, 60, 110, .05);
+  --shadow-sm: 0 2px 8px rgba(0, 60, 110, .06);
+  --shadow-md: 0 8px 24px -8px rgba(0, 60, 110, .16);
+  --shadow-lg: 0 20px 48px -18px rgba(0, 60, 110, .28);
+
+  --ease: 180ms cubic-bezier(.2, .7, .3, 1);
+
+  /* ═══ Diagramm-Tokens — unverändert aus charts.css ═══════════════════ */
+  --chart-series-1: var(--adj-blue);
+  --chart-series-2: var(--adj-orange-light);
+  --chart-series-3: var(--adj-blue-mid);
+  --chart-series-4: var(--adj-blue-grey);
+  --chart-series-5: var(--adj-orange);
+  --chart-series-6: var(--adj-orange-dark);
+  --chart-series-7: var(--adj-blue-light);
+  --chart-series-8: var(--adj-grey-200);
+  --chart-fill-1: color-mix(in oklch, var(--chart-series-1) 88%, white);
+  --chart-fill-2: color-mix(in oklch, var(--chart-series-2) 88%, white);
+  --chart-fill-3: color-mix(in oklch, var(--chart-series-3) 88%, white);
+  --chart-fill-4: color-mix(in oklch, var(--chart-series-4) 88%, white);
+  --chart-series-neutral: var(--adj-grey-200);
+
+  --chart-axis: #9a9a9a;
+  --chart-axis-width: 1px;
+  --chart-grid: #d9d9d9;
+  --chart-grid-width: 1px;
+  --chart-baseline: #6b6b6b;
+
+  --chart-label: #000000;
+  --chart-label-size: 12px;
+  --chart-label-muted: #737373;
+  --chart-value-size: 12px;
+  --chart-value-weight: 700;
+  --chart-title-size: 18px;
+  --chart-title-font: 'Roboto Condensed', Helvetica, Arial, sans-serif;
+  --chart-title-color: #000000;
+  --chart-caption-size: 14px;
+  --chart-caption-color: #737373;
+  --chart-legend-size: 12px;
+  --chart-legend-swatch: 10px;
+  --chart-legend-gap: 16px;
+
+  --chart-benchmark: #000000;
+  --chart-benchmark-dash: 4 3;
+  --chart-median: var(--adj-blue);
+  --chart-target-band: color-mix(in oklch, var(--adj-orange-light) 30%, white);
+  --chart-ci: var(--adj-blue-mid);
+
+  --chart-line-width: 2px;
+  --chart-point-stroke: var(--adj-white);
+  --chart-point-stroke-width: 1px;
+  --chart-accent-line: var(--adj-orange-light);
+  --chart-accent-point: var(--adj-orange);
+  --chart-center-font: 'Roboto Condensed', Helvetica, Arial, sans-serif;
+  --chart-center-value-size: 34px;
+  --chart-center-value-weight: 500;
+  --chart-center-label-size: 13px;
+  --chart-segment-stroke: var(--adj-white);
+  --chart-segment-stroke-width: 1.5px;
+
+  --chart-hover-opacity: .82;
+  --chart-inactive-opacity: .3;
+  --chart-transition: 160ms ease-out;
+  --chart-tooltip-bg: var(--adj-blue);
+  --chart-tooltip-text: var(--adj-white);
+  --chart-tooltip-radius: 3px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DARK MODE
+   Keine zweite Palette: dieselben Marken- und Diagramm-Token, nur andere
+   Werte. Die Flächen sind aus dem Markenblau abgeleitet (Farbton von
+   #0061ad, stark abgedunkelt) und nicht neutral grau — sonst verliert das
+   Blau der Daten seinen Bezug zur Fläche.
+   Zwei Festlegungen des Styleguides kehren sich zwangsläufig um:
+   Beschriftung („immer schwarz") und Benchmark werden hell, weil sie sonst
+   unlesbar sind. Die Serienfolge 1 Blau · 2 Hellorange · 3 Mittelblau ·
+   4 Graublau bleibt in Reihenfolge und Identität erhalten; Reihe 1 nimmt
+   das hellere Marken-Blau (--adj-link-blue) aus derselben Palette.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --surface-page: #0b1a26;
+  --surface-app: #0a1621;
+  --surface-card: #11212f;
+  --surface-raised: #16293a;
+  --surface-tint: rgba(43, 135, 218, .18);
+  --surface-panel: rgba(43, 135, 218, .28);
+  --overlay-top: rgba(11, 26, 38, .82);
+  --overlay-ctx: rgba(10, 22, 33, .86);
+
+  --ink-accent: #7ab8ea;
+  --text-body: #dae6f0;
+  --text-muted: #93a9bb;
+  --text-faint: #6d8296;
+  --text-link: var(--adj-orange-light);
+
+  --border-hair: rgba(255, 255, 255, .09);
+  --border-soft: rgba(255, 255, 255, .16);
+  --border-control: rgba(255, 255, 255, .16);
+  --border-control-strong: var(--adj-blue-mid);
+
+  --warm-tint: rgba(255, 170, 51, .18);
+  --warm-tint-soft: rgba(255, 170, 51, .13);
+  --warm-ink: var(--adj-orange-light);
+  --danger-tint: rgba(201, 74, 74, .2);
+
+  --btn-primary-bg: #1a7ac9;
+  --btn-primary-bg-hover: var(--adj-link-blue);
+
+  --footer-bg: linear-gradient(180deg, #0a3a63 0%, #082f52 100%);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, .38);
+  --shadow-md: 0 10px 28px -10px rgba(0, 0, 0, .62);
+  --shadow-lg: 0 22px 52px -18px rgba(0, 0, 0, .72);
+
+  /* ── Diagramme ─────────────────────────────────────────────────────── */
+  --chart-series-1: var(--adj-link-blue);
+  --chart-series-2: var(--adj-orange-light);
+  --chart-series-3: var(--adj-blue-mid);
+  --chart-series-4: var(--adj-blue-grey);
+  --chart-series-7: rgba(43, 135, 218, .4);
+  --chart-series-8: rgba(255, 255, 255, .22);
+  --chart-series-neutral: rgba(255, 255, 255, .24);
+  /* Flächen-Varianten mischen jetzt zur Kartenfläche hin, nicht zu Weiss. */
+  --chart-fill-1: color-mix(in oklch, var(--chart-series-1) 80%, var(--surface-card));
+  --chart-fill-2: color-mix(in oklch, var(--chart-series-2) 80%, var(--surface-card));
+  --chart-fill-3: color-mix(in oklch, var(--chart-series-3) 80%, var(--surface-card));
+  --chart-fill-4: color-mix(in oklch, var(--chart-series-4) 80%, var(--surface-card));
+
+  --chart-axis: rgba(255, 255, 255, .32);
+  --chart-grid: rgba(255, 255, 255, .1);
+  --chart-baseline: rgba(255, 255, 255, .45);
+  --chart-label: #e8f1f8;
+  --chart-label-muted: #93a9bb;
+  --chart-title-color: #ffffff;
+  --chart-caption-color: #93a9bb;
+  --chart-benchmark: #ffffff;
+  --chart-median: var(--adj-blue-mid);
+  --chart-target-band: rgba(255, 204, 102, .16);
+  --chart-ci: var(--adj-blue-mid);
+  --chart-point-stroke: var(--surface-card);
+  --chart-segment-stroke: var(--surface-card);
+  --chart-tooltip-bg: var(--surface-raised);
+}
+:root[data-theme="dark"] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237ab8ea' stroke-width='2.5'%3E%3Cpath d='m5 9 7 7 7-7'/%3E%3C/svg%3E");
+}
+:root[data-theme="dark"] input[type="checkbox"] { accent-color: var(--adj-link-blue); }
+:root[data-theme="dark"] ::selection { background: rgba(255, 204, 102, .35); color: #fff; }
+
+/* ═══ Grundgerüst ═══════════════════════════════════════════════════════ */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-ui);
+  line-height: var(--lh-body);
+  color: var(--text-body);
+  background: var(--surface-app);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-family: var(--font-heading);
+  color: var(--text-heading);
+  line-height: var(--lh-heading);
+  font-weight: var(--fw-light);
+}
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h5); }
+h3 { font-size: var(--fs-h6); }
+p { margin: 0; }
+a { color: var(--text-link); text-decoration: none; }
+a:hover { color: var(--adj-orange-hover); }
+button, input, select { font-family: inherit; font-size: inherit; color: inherit; }
+button { cursor: pointer; }
+svg { vertical-align: middle; }
+::selection { background: var(--adj-orange-light); color: #4a3200; }
+
+.muted { color: var(--text-muted); }
+.faint { color: var(--text-faint); }
+.tiny  { font-size: var(--fs-ui-xs); }
+.mono-num { font-variant-numeric: tabular-nums; }
+
+/* Etikett — überall dort, wo die Website Navigation setzt:
+   Roboto Condensed, uppercase, bold. */
+.eyebrow {
+  font-family: var(--font-button);
+  font-size: var(--fs-ui-xs);
+  font-weight: var(--nav-weight);
+  text-transform: var(--nav-transform);
+  letter-spacing: .09em;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* ═══ Kopfzone ══════════════════════════════════════════════════════════ */
+.topbar {
+  position: sticky; top: 0; z-index: 60;
+  background: var(--overlay-top);
+  backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid var(--border-hair);
+}
+.topbar-inner {
+  display: flex; align-items: center; gap: var(--space-5);
+  max-width: var(--container-app); margin: 0 auto;
+  padding: 0 var(--space-6); height: 66px;
+}
+.brand { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+.brand-mark {
+  display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: var(--radius-button);
+  background: linear-gradient(145deg, var(--adj-link-blue), var(--adj-blue) 62%);
+  box-shadow: var(--shadow-sm);
+}
+.brand-word {
+  font-family: var(--font-button); font-weight: var(--fw-bold);
+  font-size: 19px; letter-spacing: .13em; color: var(--ink-accent); line-height: 1;
+}
+.brand-product {
+  font-family: var(--font-button); font-weight: var(--fw-regular);
+  font-size: 19px; letter-spacing: .13em; color: var(--adj-link-blue); line-height: 1;
+}
+
+.mainnav { display: flex; align-items: center; gap: 2px; margin-left: var(--space-4); }
+.mainnav { padding: 0 2px; }
+.mainnav button {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 38px; padding: 0 15px;
+  border: 0; border-radius: var(--radius-button); background: none;
+  font-family: var(--font-button);
+  font-size: var(--fs-ui-sm); font-weight: var(--nav-weight);
+  text-transform: var(--nav-transform); letter-spacing: .06em;
+  color: var(--nav-text); opacity: .7;
+  transition: opacity var(--ease), background var(--ease);
+}
+.mainnav button svg { opacity: .8; }
+.mainnav button:hover { opacity: 1; background: var(--surface-app); }
+/* Aktive Seite: hellblaue Fläche in der Markenfamilie statt eines
+   farbigen Strichs — die Markierung trägt, ohne zu rufen. */
+.mainnav button.active { opacity: 1; background: var(--surface-tint); }
+.mainnav button.active svg { opacity: 1; }
+
+.topbar-right { display: flex; align-items: center; gap: var(--space-3); margin-left: auto; }
+.clinic-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 34px; padding: 0 13px; border-radius: var(--radius-pill);
+  background: var(--surface-tint); color: var(--ink-accent);
+  font-size: var(--fs-ui-sm); font-weight: var(--fw-medium);
+}
+.clinic-chip i { width: 6px; height: 6px; border-radius: 50%; background: var(--adj-orange); }
+.icon-btn {
+  display: grid; place-items: center; width: 34px; height: 34px;
+  border: 1px solid transparent; border-radius: var(--radius-button);
+  background: none; color: var(--ink-accent); opacity: .7;
+  transition: background var(--ease), opacity var(--ease);
+}
+.icon-btn:hover { background: var(--surface-tint); opacity: 1; }
+.avatar {
+  display: grid; place-items: center; width: 34px; height: 34px;
+  border-radius: 50%; color: #fff;
+  background: linear-gradient(145deg, var(--adj-link-blue), var(--adj-blue) 65%);
+  font-family: var(--font-button); font-weight: var(--fw-bold);
+  font-size: var(--fs-ui-sm); letter-spacing: .04em;
+}
+
+/* Kontextleiste — Kohorte + Fachmodus, immer sichtbar */
+.contextbar {
+  position: sticky; top: 66px; z-index: 55;
+  border-bottom: 1px solid var(--border-hair);
+  background: var(--overlay-ctx);
+  backdrop-filter: blur(10px);
+}
+.contextbar-inner {
+  display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;
+  max-width: var(--container-app); margin: 0 auto; padding: 10px var(--space-6);
+}
+.ctx-label { font-size: var(--fs-ui-sm); color: var(--text-muted); }
+.ctx-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 28px; padding: 0 11px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border-control); background: var(--surface-card);
+  font-size: var(--fs-ui-sm); color: var(--ink-accent);
+}
+.ctx-pill strong { font-weight: var(--fw-medium); }
+.ctx-pill.count { border-color: var(--adj-orange-light); background: var(--warm-tint-soft); color: var(--warm-ink); }
+.ctx-spacer { flex: 1; }
+.toggle {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: var(--fs-ui-sm); color: var(--text-muted);
+  background: none; border: 0; padding: 4px 0;
+}
+.toggle .track {
+  position: relative; width: 34px; height: 19px; border-radius: var(--radius-pill);
+  background: var(--surface-panel); transition: background var(--ease);
+}
+.toggle .track::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 15px; height: 15px; border-radius: 50%; background: var(--surface-card);
+  box-shadow: var(--shadow-xs); transition: left var(--ease);
+}
+.toggle.on .track { background: var(--adj-orange); }
+.toggle.on .track::after { left: 17px; }
+.toggle.on { color: var(--warm-ink); }
+
+/* ═══ Seitenrahmen ══════════════════════════════════════════════════════ */
+.page { max-width: var(--container-app); margin: 0 auto; padding: var(--space-6) var(--space-6) var(--space-8); }
+.page-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: var(--space-5); flex-wrap: wrap; margin-bottom: var(--space-6);
+}
+.page-head h1 { letter-spacing: -.015em; }
+.page-head .lede { margin-top: 6px; font-size: var(--fs-h6); font-weight: var(--fw-light); color: var(--text-muted); line-height: 1.45; }
+.head-actions { display: flex; gap: var(--space-2); }
+
+/* ═══ Buttons ═══════════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 40px; padding: 0 18px;
+  border: 1px solid transparent; border-radius: var(--radius-button);
+  font-family: var(--font-button); font-size: var(--fs-ui);
+  font-weight: var(--fw-bold); letter-spacing: .03em; text-transform: none;
+  transition: background var(--ease), color var(--ease), box-shadow var(--ease), transform var(--ease);
+}
+.btn:active { transform: translateY(1px); }
+/* ✚ APP: Der Website-Export kennt nur den orangen CTA. In der Applikation
+   ist die Primäraktion blau — Orange bleibt Signalfarbe für Auswahl,
+   Veränderung und Hinweise und verliert seine Wirkung, wenn jede
+   Schaltfläche sie trägt. */
+.btn-primary { background: var(--btn-primary-bg); color: #fff; box-shadow: 0 6px 16px -8px rgba(0, 97, 173, .8); }
+.btn-primary:hover { background: var(--btn-primary-bg-hover); }
+.btn-secondary { background: var(--surface-card); color: var(--ink-accent); border-color: var(--border-control); box-shadow: var(--shadow-xs); }
+.btn-secondary:hover { border-color: var(--border-control-strong); background: var(--surface-tint); }
+.btn-ghost { background: none; color: var(--ink-accent); }
+.btn-ghost:hover { background: var(--surface-tint); }
+.btn-sm { height: 32px; padding: 0 12px; font-size: var(--fs-ui-sm); }
+/* Keine karten- oder spaltenbreiten Schaltflächen: eine Aktion bekommt die
+   Breite ihres Textes, nicht die ihres Containers. */
+.btn-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* ═══ Karten ════════════════════════════════════════════════════════════ */
+.card {
+  background: var(--surface-card); border: 1px solid var(--border-hair);
+  border-radius: var(--radius-card); box-shadow: var(--shadow-sm);
+}
+.card-pad { padding: var(--space-5); }
+.card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-3); padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-hair);
+}
+.card-head h3 { font-size: var(--fs-h6); font-weight: var(--fw-regular); color: var(--ink-accent); }
+.card-head .sub { font-size: var(--fs-ui-sm); color: var(--text-muted); margin-top: 1px; }
+
+/* ═══ KPI ═══════════════════════════════════════════════════════════════ */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); margin-bottom: var(--space-5); }
+.kpi {
+  position: relative; overflow: hidden;
+  padding: var(--space-5); background: var(--surface-card);
+  border: 1px solid var(--border-hair); border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--ease), box-shadow var(--ease);
+}
+.kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.kpi::after {
+  content: ''; position: absolute; inset: auto auto -46px -46px;
+  width: 132px; height: 132px; border-radius: 50%;
+  background: radial-gradient(circle, var(--surface-tint) 0%, transparent 70%);
+  pointer-events: none;
+}
+.kpi > *:not(.kpi-spark) { position: relative; z-index: 1; }
+.kpi-value {
+  margin: 10px 0 2px; font-family: var(--font-heading); font-weight: var(--fw-light);
+  font-size: 44px; line-height: 1; letter-spacing: -.02em; color: var(--ink-accent);
+  font-variant-numeric: tabular-nums;
+}
+.kpi-value small { font-size: 22px; font-weight: var(--fw-light); }
+.kpi-foot { display: flex; align-items: center; gap: 7px; font-size: var(--fs-ui-sm); color: var(--text-muted); }
+.trend {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 1px 7px; border-radius: var(--radius-pill);
+  font-size: var(--fs-ui-xs); font-weight: var(--fw-medium);
+  background: var(--surface-tint); color: var(--ink-accent);
+}
+.trend.up { background: var(--warm-tint); color: var(--warm-ink); }
+.kpi-spark { position: absolute; z-index: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 44px; opacity: .45; }
+
+/* ═══ Assistent ═════════════════════════════════════════════════════════ */
+.assistant {
+  position: relative; overflow: hidden;
+  margin-bottom: var(--space-5); padding: var(--space-6);
+  border-radius: var(--radius-card);
+  background:
+    radial-gradient(900px 260px at 88% -40%, rgba(153, 193, 223, .35), transparent 62%),
+    linear-gradient(135deg, var(--surface-tint) 0%, var(--surface-card) 58%, var(--surface-tint) 100%);
+  border: 1px solid var(--border-control);
+}
+.assistant-head { display: flex; align-items: center; gap: 10px; margin-bottom: 3px; }
+.assistant-head .spark { color: var(--adj-orange); font-size: 17px; line-height: 1; }
+.assistant h2 { font-size: var(--fs-h4); font-weight: var(--fw-light); color: var(--ink-accent); }
+.assistant .lede { font-size: var(--fs-ui); color: var(--text-muted); margin-bottom: var(--space-4); }
+.ask-form { display: flex; gap: var(--space-2); }
+.ask-input {
+  flex: 1; min-width: 0; height: 48px; padding: 0 18px;
+  border: 1px solid var(--border-control); border-radius: var(--radius-button);
+  background: var(--surface-raised); font-size: var(--fs-ui); color: var(--text-body);
+  box-shadow: var(--shadow-xs); transition: border-color var(--ease), box-shadow var(--ease);
+}
+.ask-input::placeholder { color: var(--text-faint); }
+.ask-input:focus { outline: 0; border-color: var(--border-control-strong); box-shadow: 0 0 0 4px rgba(153, 193, 223, .32); }
+/* Schaltflächen haben durchgehend dieselbe Form: --radius-button. */
+.ask-form .btn { height: 48px; padding: 0 26px; }
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.chip {
+  height: 30px; padding: 0 13px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border-control); background: var(--surface-raised);
+  font-size: var(--fs-ui-sm); color: var(--ink-accent);
+  transition: background var(--ease), border-color var(--ease);
+}
+.chip:hover { background: var(--surface-card); border-color: var(--border-control-strong); }
+.answer {
+  margin-top: var(--space-4); padding: var(--space-4) var(--space-5);
+  background: var(--surface-card); border: 1px solid var(--border-hair);
+  border-left: 3px solid var(--adj-blue); border-radius: var(--radius-button);
+  box-shadow: var(--shadow-xs); font-size: var(--fs-ui);
+}
+.answer strong { color: var(--ink-accent); font-weight: var(--fw-medium); }
+.answer .answer-foot { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-3); }
+
+/* ═══ Diagramm-Panel ════════════════════════════════════════════════════ */
+.chart-panel { padding: var(--space-5); }
+.chart-title {
+  font-family: var(--chart-title-font); font-size: var(--chart-title-size);
+  font-weight: 700; color: var(--chart-title-color); line-height: 1.15;
+}
+.chart-caption { font-size: var(--chart-caption-size); color: var(--chart-caption-color); line-height: 1.35; margin-top: 2px; }
+.chart-body { margin-top: var(--space-4); }
+.chart-body svg { display: block; width: 100%; height: auto; }
+/* Ringdiagramme bleiben quadratisch und dürfen die Karte nicht sprengen */
+.chart-body.ring { display: flex; justify-content: center; }
+.chart-body.ring svg { max-width: 280px; }
+.legend { display: flex; flex-wrap: wrap; gap: var(--chart-legend-gap); align-items: center; margin-top: var(--space-3); font-size: var(--chart-legend-size); color: var(--text-body); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: var(--chart-legend-swatch); height: var(--chart-legend-swatch); display: block; }
+.ax   { font-size: var(--chart-label-size); fill: var(--chart-label); }
+.axm  { font-size: var(--chart-label-size); fill: var(--chart-label-muted); }
+.vl   { font-size: var(--chart-value-size); font-weight: var(--chart-value-weight); fill: var(--chart-label); }
+.grid { stroke: var(--chart-grid); stroke-width: var(--chart-grid-width); }
+.axis { stroke: var(--chart-axis); stroke-width: var(--chart-axis-width); }
+.base { stroke: var(--chart-baseline); stroke-width: 1; }
+.bar  { transition: opacity var(--chart-transition); }
+.bar:hover { opacity: var(--chart-hover-opacity); }
+
+/* Verteilungsliste — kompakte Balken in Listenform */
+.dist { display: flex; flex-direction: column; gap: 13px; margin-top: var(--space-4); }
+.dist-row { cursor: pointer; }
+.dist-line { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: 5px; }
+.dist-line span { font-size: var(--fs-ui-sm); color: var(--text-body); }
+.dist-line strong { font-size: var(--fs-ui-sm); font-weight: var(--fw-medium); color: var(--ink-accent); font-variant-numeric: tabular-nums; }
+.dist-line strong em { font-style: normal; color: var(--text-faint); font-weight: var(--fw-regular); margin-left: 6px; }
+.dist-track { height: 8px; border-radius: var(--radius-pill); background: var(--surface-tint); overflow: hidden; }
+.dist-fill { height: 100%; border-radius: var(--radius-pill); background: var(--chart-series-1); transition: width 600ms cubic-bezier(.2,.7,.3,1), opacity var(--chart-transition); }
+.dist-row:hover .dist-fill { opacity: var(--chart-hover-opacity); }
+/* Verteilungslisten zeigen Kategorien EINER Reihe. Die Serienfolge des
+   Styleguides (Blau · Hellorange · Mittelblau · Graublau) gilt für mehrere
+   Reihen; hier wäre sie fehlleitend — deshalb eine blaue Abstufung. */
+.dist-fill.s2 { background: color-mix(in oklch, var(--adj-blue) 58%, var(--adj-blue-mid)); }
+.dist-fill.s3 { background: var(--adj-blue-mid); }
+.dist-fill.s4 { background: var(--adj-blue-grey); }
+.dist-fill.s5 { background: var(--chart-series-neutral); }
+
+/* ═══ Layouts ═══════════════════════════════════════════════════════════ */
+.grid-2   { display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4); align-items: start; }
+.grid-3   { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin-bottom: var(--space-4); align-items: start; }
+.grid-4   { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+.workflow { display: grid; grid-template-columns: 280px minmax(0, 1fr) 300px; gap: var(--space-4); align-items: start; }
+.export-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--space-4); align-items: start; }
+.sticky { position: sticky; top: 128px; }
+
+/* ═══ Listen / Verknüpfungen ════════════════════════════════════════════ */
+.list { display: flex; flex-direction: column; }
+.list-row {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: 13px var(--space-5); border-bottom: 1px solid var(--border-hair);
+  cursor: pointer; transition: background var(--ease);
+}
+.list-row:last-child { border-bottom: 0; }
+.list-row:hover { background: var(--surface-tint); }
+.list-icon { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: var(--radius-button); background: var(--surface-tint); color: var(--ink-accent); }
+.list-icon.star { background: var(--warm-tint); color: var(--warm-ink); }
+.list-main { flex: 1; min-width: 0; }
+.list-main strong { display: block; font-size: var(--fs-ui); font-weight: var(--fw-medium); color: var(--text-body); line-height: 1.35; }
+.list-main span { display: block; font-size: var(--fs-ui-sm); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-row .go { color: var(--adj-blue-mid); transition: transform var(--ease), color var(--ease); }
+.list-row:hover .go { color: var(--ink-accent); transform: translateX(3px); }
+
+.tile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+.tile {
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  background: var(--surface-card); border: 1px solid var(--border-hair);
+  border-radius: var(--radius-card); box-shadow: var(--shadow-xs);
+  cursor: pointer; transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease);
+}
+.tile:hover { transform: translateY(-3px); border-color: var(--border-control); box-shadow: var(--shadow-md); }
+.tile h4 { font-size: var(--fs-ui); font-weight: var(--fw-medium); color: var(--text-body); }
+.tile p { font-size: var(--fs-ui-sm); color: var(--text-muted); margin-bottom: var(--space-3); }
+
+/* ═══ Formulare ═════════════════════════════════════════════════════════ */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > label { font-size: var(--fs-ui-sm); font-weight: var(--fw-medium); color: var(--text-body); }
+input[type="text"], input[type="search"], select {
+  height: 38px; padding: 0 12px;
+  border: 1px solid var(--border-control); border-radius: var(--radius-button);
+  background: var(--surface-raised); font-size: var(--fs-ui-sm); color: var(--text-body);
+  transition: border-color var(--ease), box-shadow var(--ease);
+}
+select { padding-right: 30px; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230061ad' stroke-width='2.5'%3E%3Cpath d='m5 9 7 7 7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; }
+input:focus, select:focus { outline: 0; border-color: var(--border-control-strong); box-shadow: 0 0 0 3px rgba(153, 193, 223, .3); }
+
+.year-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.pick {
+  height: 32px; padding: 0 13px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border-control); background: var(--surface-card);
+  font-size: var(--fs-ui-sm); color: var(--ink-accent); font-variant-numeric: tabular-nums;
+  transition: all var(--ease);
+}
+.pick:hover { border-color: var(--border-control-strong); background: var(--surface-tint); }
+.pick.on { background: var(--adj-blue); border-color: var(--ink-accent); color: #fff; box-shadow: var(--shadow-xs); }
+.pick.on.warm { background: var(--adj-orange); border-color: var(--adj-orange); }
+
+.cond {
+  display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .8fr) minmax(0, 1.2fr) 34px;
+  gap: var(--space-2); align-items: center;
+  padding: 11px 12px; border: 1px solid var(--border-hair);
+  border-radius: var(--radius-button); background: var(--surface-app);
+  transition: border-color var(--ease), background var(--ease);
+}
+.cond:hover { border-color: var(--border-control); background: var(--surface-card); }
+.cond + .cond { margin-top: var(--space-2); }
+.cond-remove {
+  display: grid; place-items: center; width: 30px; height: 30px;
+  border: 0; border-radius: var(--radius-button); background: none;
+  color: var(--text-faint); font-size: 17px; line-height: 1;
+  transition: background var(--ease), color var(--ease);
+}
+.cond-remove:hover { background: var(--danger-tint); color: #c94a4a; }
+.cond-join {
+  display: flex; align-items: center; gap: var(--space-2); margin: 9px 0 9px 4px;
+}
+.cond-join::after { content: ''; flex: 1; height: 1px; background: var(--border-hair); }
+.join-tag {
+  font-family: var(--font-button); font-size: var(--fs-ui-xs); font-weight: var(--fw-bold);
+  letter-spacing: .1em; color: var(--ink-accent); background: var(--surface-tint);
+  padding: 2px 9px; border-radius: var(--radius-pill);
+}
+
+.tags { display: flex; flex-wrap: wrap; gap: 7px; }
+.tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 6px 5px 12px; border-radius: var(--radius-pill);
+  background: var(--surface-tint); color: var(--ink-accent); font-size: var(--fs-ui-sm);
+}
+.tag strong { font-weight: var(--fw-medium); }
+.tag code { font-family: var(--font-button); font-size: var(--fs-ui-xs); color: var(--text-muted); }
+.tag button { border: 0; background: var(--surface-raised); color: var(--ink-accent); width: 20px; height: 20px; border-radius: 50%; line-height: 1; font-size: 13px; }
+.tag button:hover { background: var(--surface-card); color: var(--ink-accent); }
+
+/* ═══ Live-Vorschau ═════════════════════════════════════════════════════ */
+.preview {
+  overflow: hidden; border-radius: var(--radius-card);
+  border: 1px solid var(--adj-blue); box-shadow: var(--shadow-md);
+}
+.preview-top {
+  padding: var(--space-5); color: #fff;
+  background: linear-gradient(160deg, var(--adj-footer-from) 0%, var(--adj-blue) 70%);
+}
+.preview-top .eyebrow { color: rgba(255, 255, 255, .72); }
+.preview-num {
+  font-family: var(--font-heading); font-weight: var(--fw-light);
+  font-size: 54px; line-height: 1.05; letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums; margin: 6px 0 2px;
+}
+.preview-top p { font-size: var(--fs-ui-sm); color: rgba(255, 255, 255, .82); }
+.preview-body { background: var(--surface-card); padding: var(--space-3) var(--space-5) var(--space-4); }
+.preview-stat { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border-hair); font-size: var(--fs-ui-sm); }
+.preview-stat:last-child { border-bottom: 0; }
+.preview-stat strong { font-weight: var(--fw-medium); color: var(--ink-accent); font-variant-numeric: tabular-nums; }
+.preview-foot { padding: 0 var(--space-5) var(--space-5); background: var(--surface-card); }
+
+/* ═══ Tabelle ═══════════════════════════════════════════════════════════ */
+.table-tools { display: flex; align-items: center; gap: var(--space-3); }
+.table-tools input { width: 220px; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  position: sticky; top: 0;
+  padding: 11px var(--space-5); text-align: left;
+  background: var(--surface-app); border-bottom: 1px solid var(--border-hair);
+  font-family: var(--font-button); font-size: var(--fs-ui-xs); font-weight: var(--fw-bold);
+  text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); white-space: nowrap;
+}
+tbody td { padding: 12px var(--space-5); border-bottom: 1px solid var(--border-hair); font-size: var(--fs-ui-sm); white-space: nowrap; }
+tbody tr { transition: background var(--ease); }
+tbody tr:hover { background: var(--surface-tint); }
+tbody tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; color: var(--text-muted); }
+.pill {
+  display: inline-block; padding: 2px 10px; border-radius: var(--radius-pill);
+  font-size: var(--fs-ui-xs); font-weight: var(--fw-medium);
+  background: var(--surface-tint); color: var(--ink-accent);
+}
+.pill.warn { background: var(--warm-tint); color: var(--warm-ink); }
+.table-foot { padding: 12px var(--space-5); font-size: var(--fs-ui-sm); color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+
+/* ═══ Tabs ══════════════════════════════════════════════════════════════ */
+.tabs { display: inline-flex; gap: 3px; padding: 4px; border-radius: var(--radius-pill); background: var(--surface-app); border: 1px solid var(--border-hair); }
+.tabs button {
+  height: 32px; padding: 0 16px; border: 0; border-radius: var(--radius-pill);
+  background: none; font-size: var(--fs-ui-sm); font-weight: var(--fw-medium); color: var(--text-muted);
+  transition: all var(--ease);
+}
+.tabs button:hover { color: var(--ink-accent); }
+.tabs button.active { background: var(--surface-card); color: var(--ink-accent); box-shadow: var(--shadow-xs); }
+
+/* ═══ Export ════════════════════════════════════════════════════════════ */
+.fieldgroup { padding: var(--space-4) 0; border-bottom: 1px solid var(--border-hair); }
+.fieldgroup:last-child { border-bottom: 0; }
+.fieldgroup-head { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+.fieldgroup-head label { display: inline-flex; align-items: center; gap: 9px; font-size: var(--fs-ui); font-weight: var(--fw-medium); color: var(--text-body); cursor: pointer; }
+input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--ink-accent); cursor: pointer; }
+.fchip {
+  height: 32px; padding: 0 13px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border-control); background: var(--surface-card);
+  font-size: var(--fs-ui-sm); color: var(--text-body); transition: all var(--ease);
+}
+.fchip:hover { border-color: var(--border-control-strong); background: var(--surface-tint); }
+.fchip.on { background: var(--adj-blue); border-color: var(--ink-accent); color: #fff; }
+.report-row {
+  display: flex; align-items: center; gap: var(--space-4);
+  padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border-hair);
+  transition: background var(--ease);
+}
+.report-row:last-child { border-bottom: 0; }
+.report-row:hover { background: var(--surface-tint); }
+.report-icon { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: var(--radius-button); background: var(--surface-tint); color: var(--ink-accent); }
+.report-body { flex: 1; min-width: 0; }
+.report-body strong { display: block; font-size: var(--fs-ui); font-weight: var(--fw-medium); color: var(--text-body); }
+.report-body span { font-size: var(--fs-ui-sm); color: var(--text-muted); }
+.summary-list { list-style: none; margin: 0; padding: 0; }
+.summary-list li { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--border-hair); font-size: var(--fs-ui-sm); }
+.summary-list li:last-child { border-bottom: 0; }
+.summary-list strong { font-weight: var(--fw-medium); color: var(--ink-accent); font-variant-numeric: tabular-nums; }
+.selected-fields { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: var(--space-4); }
+.selected-field { padding: 3px 9px; border-radius: var(--radius-pill); background: var(--surface-tint); color: var(--ink-accent); font-size: var(--fs-ui-xs); }
+
+/* ═══ Hinweis ═══════════════════════════════════════════════════════════ */
+.notice {
+  display: flex; align-items: center; gap: 10px; margin-top: var(--space-3);
+  padding: 11px 15px; border-radius: var(--radius-button);
+  background: var(--warm-tint-soft); border: 1px solid var(--adj-orange-light);
+  color: var(--warm-ink); font-size: var(--fs-ui-sm);
+}
+.toast {
+  position: fixed; left: 50%; bottom: 28px; z-index: 90;
+  transform: translate(-50%, 16px);
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px; border-radius: var(--radius-pill);
+  background: var(--adj-blue); color: #fff; font-size: var(--fs-ui-sm);
+  box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none;
+  transition: opacity var(--ease), transform var(--ease);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ═══ Fusszeile ═════════════════════════════════════════════════════════ */
+.site-foot {
+  margin-top: var(--space-8);
+  background: var(--footer-bg);
+  color: rgba(255, 255, 255, .86);
+}
+.site-foot-inner {
+  max-width: var(--container-app); margin: 0 auto;
+  padding: var(--space-6); display: flex; flex-wrap: wrap;
+  align-items: center; justify-content: space-between; gap: var(--space-4);
+  font-size: 12px;
+}
+.site-foot a { color: #fff; opacity: .86; }
+.site-foot a:hover { opacity: 1; color: var(--adj-orange-light); }
+.foot-links { display: flex; gap: var(--space-5); }
+
+/* ═══ Bewegung ══════════════════════════════════════════════════════════ */
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.view > * { animation: rise 320ms cubic-bezier(.2, .7, .3, 1) both; }
+.view > *:nth-child(2) { animation-delay: 40ms; }
+.view > *:nth-child(3) { animation-delay: 80ms; }
+.view > *:nth-child(4) { animation-delay: 120ms; }
+.view > *:nth-child(n+5) { animation-delay: 150ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}
+
+/* ═══ Responsiv ═════════════════════════════════════════════════════════ */
+@media (max-width: 1180px) {
+  .workflow { grid-template-columns: 1fr; }
+  .sticky { position: static; }
+  .grid-2, .export-layout { grid-template-columns: 1fr; }
+  .kpi-grid, .tile-grid, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .topbar-inner { height: auto; flex-wrap: wrap; padding: 12px var(--space-4); gap: var(--space-3); }
+  .mainnav { order: 3; width: 100%; margin-left: 0; overflow-x: auto; }
+  .mainnav button { padding: 0 12px; }
+  .contextbar { position: static; }
+  .page { padding: var(--space-5) var(--space-4) var(--space-7); }
+  .clinic-chip { display: none; }
+  h1 { font-size: var(--fs-h2); }
+}
+@media (max-width: 620px) {
+  .kpi-grid, .tile-grid, .grid-4 { grid-template-columns: 1fr; }
+  .cond { grid-template-columns: 1fr 34px; }
+  h1 { font-size: 28px; }
+  .assistant { padding: var(--space-5); }
+  .ask-form { flex-direction: column; }
+  .ask-form .btn { width: 100%; }
+}
+
+/* ═══ Druck ═════════════════════════════════════════════════════════════ */
+@media print {
+  /* Gedruckt wird immer hell — auch aus dem Dark-Mode heraus. */
+  :root, :root[data-theme="dark"] {
+    --chart-grid: #cfcfcf; --chart-label-size: 10px; --chart-value-size: 10px;
+    --chart-legend-size: 10px; --chart-title-size: 15px; --chart-caption-size: 12px;
+    --chart-line-width: 1.5px; --chart-transition: 0ms;
+    --surface-page: #fff; --surface-app: #fff; --surface-card: #fff; --surface-raised: #fff;
+    --surface-tint: #ebf3f9; --ink-accent: #0061ad; --text-body: #333; --text-muted: #737373;
+    --border-hair: #ddd; --border-control: #ccc; --warm-ink: #e09900;
+    --chart-series-1: #0061ad; --chart-label: #000; --chart-title-color: #000;
+    --chart-caption-color: #737373; --chart-benchmark: #000;
+    --chart-point-stroke: #fff; --chart-segment-stroke: #fff;
+    --chart-axis: #9a9a9a; --chart-baseline: #6b6b6b;
+  }
+  body { background: #fff; }
+  .topbar, .contextbar, .site-foot, .head-actions, .assistant { display: none; }
+  .card, .kpi { box-shadow: none; border-color: #ccc; break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   Ikonografie — 1.5px Strichstärke, 24er-Raster
+   ══════════════════════════════════════════════════════════════════════ */
+const I = {
+  home:   p('<path d="M3 10.4 12 3.2l9 7.2V20a1.4 1.4 0 0 1-1.4 1.4H4.4A1.4 1.4 0 0 1 3 20z"/><path d="M9.4 21.4v-6.6h5.2v6.6"/>'),
+  filter: p('<path d="M3.5 5.5h17M6.8 12h10.4M10.2 18.5h3.6"/>'),
+  chart:  p('<path d="M4 19.5V4.5M4 19.5h16"/><path d="m7.4 15.6 3.3-4.4 3 2.1 5.1-7"/>'),
+  down:   p('<path d="M12 3.6v11.6M7.2 10.6 12 15.4l4.8-4.8M4.6 20.4h14.8"/>'),
+  folder: p('<path d="M3.2 6.6A2.4 2.4 0 0 1 5.6 4.2h4.2l2 2h6.6a2.4 2.4 0 0 1 2.4 2.4v8a2.4 2.4 0 0 1-2.4 2.4H5.6a2.4 2.4 0 0 1-2.4-2.4z"/>'),
+  star:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2.6 2.9 5.9 6.5.9-4.7 4.6 1.1 6.4L12 17.4l-5.8 3 1.1-6.4-4.7-4.6 6.5-.9z"/></svg>',
+  clock:  p('<circle cx="12" cy="12" r="8.4"/><path d="M12 7.2V12l3.1 1.9"/>'),
+  plus:   p('<path d="M12 5.2v13.6M5.2 12h13.6"/>'),
+  search: p('<circle cx="10.6" cy="10.6" r="6.9"/><path d="m15.8 15.8 4.6 4.6"/>'),
+  file:   p('<path d="M6.2 3.4h7.6l4.2 4.2v13H6.2z"/><path d="M13.8 3.4v4.4h4.4M9 13.4h6M9 16.8h6"/>'),
+  arrow:  p('<path d="M5.5 12h13M13 6.5l5.5 5.5-5.5 5.5"/>'),
+  bell:   p('<path d="M18 9.2a6 6 0 1 0-12 0c0 5.4-2.2 6.9-2.2 6.9h16.4S18 14.6 18 9.2"/><path d="M13.7 20.2a2 2 0 0 1-3.4 0"/>'),
+  gear:   p('<circle cx="12" cy="12" r="3.1"/><path d="M19.1 14.6a1.5 1.5 0 0 0 .3 1.7l.1.1a1.9 1.9 0 1 1-2.6 2.6l-.1-.1a1.5 1.5 0 0 0-2.6 1v.2a1.9 1.9 0 0 1-3.7 0v-.1a1.5 1.5 0 0 0-2.6-1l-.1.1a1.9 1.9 0 1 1-2.6-2.6l.1-.1a1.5 1.5 0 0 0-1-2.6h-.2a1.9 1.9 0 0 1 0-3.7h.1a1.5 1.5 0 0 0 1-2.6l-.1-.1A1.9 1.9 0 1 1 7.6 4.8l.1.1a1.5 1.5 0 0 0 2.6-1v-.2a1.9 1.9 0 0 1 3.7 0v.1a1.5 1.5 0 0 0 2.6 1l.1-.1a1.9 1.9 0 1 1 2.6 2.6l-.1.1a1.5 1.5 0 0 0 1 2.6h.2a1.9 1.9 0 0 1 0 3.7h-.1a1.5 1.5 0 0 0-1.2.9"/>'),
+  spark:  p('<path d="M12 3.6 13.9 9l5.4 1.9-5.4 1.9L12 18.2l-1.9-5.4L4.7 11l5.4-1.9z"/>'),
+  check:  p('<path d="m4.8 12.6 4.6 4.6L19.2 7.4"/>'),
+  moon:   p('<path d="M20.6 13.9A8.5 8.5 0 1 1 10.1 3.4a6.7 6.7 0 0 0 10.5 10.5"/>'),
+  sun:    p('<circle cx="12" cy="12" r="4.1"/><path d="M12 2.8v2M12 19.2v2M5 5l1.4 1.4M17.6 17.6 19 19M2.8 12h2M19.2 12h2M5 19l1.4-1.4M17.6 6.4 19 5"/>'),
+  table:  p('<rect x="3.4" y="4.6" width="17.2" height="14.8" rx="1.6"/><path d="M3.4 9.6h17.2M9.2 9.6v9.8"/>')
+};
+function p(d, size) {
+  return '<svg width="' + (size || 16) + '" height="' + (size || 16) + '" viewBox="0 0 24 24" fill="none" ' +
+         'stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Daten — Demonstrationsbestand (Brustkrebsregister, Klinik 1742)
+   ══════════════════════════════════════════════════════════════════════ */
+const YEARS = [2025, 2024, 2023, 2022, 2021];
+
+const SAVED = [
+  { id: 1, name: 'R0 Resections 2025',          desc: 'All cases with R0 resection status in 2025', used: '2 hours ago', star: true },
+  { id: 2, name: 'EUSOMA / DKG / SBCDB Cases',  desc: 'Cases matching certification criteria',      used: '3 days ago',  star: false },
+  { id: 3, name: 'Externally Clarified Cases',  desc: 'External clarification = Yes',               used: 'Yesterday',   star: true },
+  { id: 4, name: 'Mastectomy Cases T2+',        desc: 'Mastectomy patients with tumor stage T2+',   used: '1 week ago',  star: false }
+];
+
+const FIELDS = {
+  'Patient Demographics': [
+    { id: 'age',        label: 'Age',                  code: 'KL_1003' },
+    { id: 'age_group',  label: 'Age Group',            code: 'KL_2387' },
+    { id: 'birth_year', label: 'Year of Birth',        code: 'KL_112'  }
+  ],
+  'Diagnosis': [
+    { id: 'main_diag',   label: 'Primary Diagnosis',   code: 'I01'     },
+    { id: 'tumor_stage', label: 'Tumor Stage (T)',     code: 'I05'     },
+    { id: 'her2',        label: 'HER2 Status',         code: 'OP_559'  }
+  ],
+  'Surgery': [
+    { id: 'op_type',          label: 'Type of First Oncological Breast Surgery', code: 'E08' },
+    { id: 'resection',        label: 'Resection Status (R)',                     code: 'E12' },
+    { id: 'patient_operated', label: 'Patient Operated',                         code: 'N00' }
+  ],
+  'Clarification & Referral': [
+    { id: 'ext_clarification', label: 'External Clarification', code: 'KL_2843' },
+    { id: 'date_changed',      label: 'Date Changed',           code: 'KL_3763' }
+  ]
+};
+
+const VALUES = {
+  ext_clarification: ['Yes', 'No'],
+  patient_operated:  ['Yes', 'No', 'Yes, but externally'],
+  op_type:           ['Breast-conserving', 'Mastectomy', 'Mastectomy with reconstruction', 'Other'],
+  resection:         ['R0', 'R1', 'R2'],
+  main_diag:         ['Invasive carcinoma', 'In situ carcinoma', 'No carcinoma'],
+  tumor_stage:       ['Tis', 'T1', 'T2', 'T3', 'T4'],
+  her2:              ['Positive', 'Negative', 'Equivocal']
+};
+
+const OPERATORS = ['is', 'is not', 'contains', 'greater than', 'less than'];
+
+const CASES = [
+  [1, '8██', '03.02.2025', 1965, 'Invasive carcinoma', 'Breast-conserving',              'R0', 'T1'],
+  [2, '7██', '06.02.2025', 1972, 'Invasive carcinoma', 'Mastectomy',                     'R0', 'T2'],
+  [3, '5██', '20.02.2025', 1978, 'In situ carcinoma',  'Breast-conserving',              'R0', 'Tis'],
+  [4, '9██', '14.01.2025', 1960, 'Invasive carcinoma', 'Breast-conserving',              'R1', 'T2'],
+  [5, '3██', '28.01.2025', 1985, 'Invasive carcinoma', 'Mastectomy with reconstruction', 'R0', 'T3'],
+  [6, '6██', '11.03.2025', 1969, 'Invasive carcinoma', 'Breast-conserving',              'R0', 'T1'],
+  [7, '4██', '22.03.2025', 1991, 'No carcinoma',       'Breast-conserving',              'R0', 'T1'],
+  [8, '2██', '05.04.2025', 1954, 'Invasive carcinoma', 'Breast-conserving',              'R0', 'T1']
+];
+
+const EXPORT_GROUPS = {
+  'Patient Info':  ['PID', 'Date of First Consultation', 'Year of Birth', 'Age', 'Age Group'],
+  'Diagnosis':     ['Primary Diagnosis', 'Tumor Stage (T)', 'HER2 Status', 'Grading'],
+  'Surgery':       ['Surgery Type', 'Resection Status', 'Patient Operated', 'Number of Operations'],
+  'Clarification': ['External Clarification', 'Date Changed']
+};
+
+/* Kennzahlenreihen für die Diagramme */
+const CAPTURE = {
+  cats: ['Surgery', 'Ortho', 'Gyn', 'Uro', 'ENT', 'Derma'],
+  a: [78, 84, 71, 90, 66, 82],
+  b: [72, 79, 68, 85, 63, 77]
+};
+const TREND = {
+  years: [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+  own:   [62, 66, 71, 69, 76, 82, 85, 88],
+  peers: [56, 59, 58, 63, 65, 64, 70, 73],
+  all:   [49, 52, 55, 53, 59, 62, 66, 70],
+  benchmark: 75
+};
+const DIAGNOSIS = [['Invasive carcinoma', 67, 90.4], ['In situ carcinoma', 4, 5.8], ['No carcinoma', 3, 3.9]];
+const SURGERY   = [['Breast-conserving', 58, 78.7], ['Mastectomy', 8, 10.6], ['Mast. + reconstruction', 6, 8.5], ['Other', 2, 2.1]];
+const STAGE     = [['Tis', 4, 5.4], ['T1', 28, 37.8], ['T2', 10, 13.5], ['T3', 2, 2.7]];
+const MONTHS    = [['Jan', 12], ['Feb', 18], ['Mar', 22], ['Apr', 14], ['May', 19], ['Jun', 16]];
+
+/* ══════════════════════════════════════════════════════════════════════
+   Zustand
+   ══════════════════════════════════════════════════════════════════════ */
+const state = {
+  view: 'dashboard',
+  /* Startwert aus der Systemeinstellung; danach entscheidet der Schalter.
+     Bewusst nur im Speicher — der Prototyp legt nichts im Browser ab. */
+  theme: (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light',
+  years: [2025],
+  filters: [{ id: 1, field: 'ext_clarification', operator: 'is', value: 'Yes' }],
+  advanced: false,
+  answer: false,
+  exportTab: 'fields',
+  exportFields: ['PID', 'Date of First Consultation', 'Year of Birth', 'Primary Diagnosis', 'Surgery Type', 'Resection Status'],
+  format: 'Excel (.xlsx)',
+  caseSearch: ''
+};
+
+/* ══════════════════════════════════════════════════════════════════════
+   Hilfsfunktionen
+   ══════════════════════════════════════════════════════════════════════ */
+const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Schweizer Tausendertrennzeichen — Apostroph ab 1'000 (Styleguide) */
+const chNum = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '’');
+const allFields = () => Object.values(FIELDS).flat();
+const fieldOf = id => allFields().find(f => f.id === id);
+const fieldLabel = id => (fieldOf(id) || {}).label || id;
+const activeFilters = () => state.filters.filter(f => f.field && f.value);
+
+/* ── SVG-Diagramme, gebaut auf den Chart-Tokens ──────────────────────── */
+const PLOT = { w: 620, h: 250, l: 44, r: 12, t: 16, b: 34 };
+
+function scaffold(max, ticks) {
+  const { w, h, l, r, t, b } = PLOT;
+  let out = '<g class="grid">';
+  for (let i = 0; i <= ticks; i++) {
+    const y = t + (h - t - b) * (i / ticks);
+    out += '<line x1="' + l + '" y1="' + y + '" x2="' + (w - r) + '" y2="' + y + '"/>';
+  }
+  out += '</g><g class="axm" text-anchor="end">';
+  for (let i = 0; i <= ticks; i++) {
+    const y = t + (h - t - b) * (i / ticks);
+    out += '<text x="' + (l - 9) + '" y="' + (y + 4) + '">' + Math.round(max - max * (i / ticks)) + '</text>';
+  }
+  out += '</g><line class="axis" x1="' + l + '" y1="' + t + '" x2="' + l + '" y2="' + (h - b) + '"/>';
+  return out;
+}
+
+function groupedBars(data, max) {
+  const { w, h, l, r, t, b } = PLOT;
+  const plotW = w - l - r, plotH = h - t - b, n = data.cats.length;
+  const slot = plotW / n, bw = Math.min(26, slot * 0.3), gap = 5;
+  let s = '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="Capture rate by specialty">' + scaffold(max, 4);
+  ['a', 'b'].forEach((key, si) => {
+    s += '<g fill="var(--chart-series-' + (si === 0 ? 1 : 2) + ')">';
+    data[key].forEach((v, i) => {
+      const hgt = plotH * (v / max);
+      const x = l + slot * i + slot / 2 - bw - gap / 2 + si * (bw + gap);
+      s += '<rect class="bar" x="' + x.toFixed(1) + '" y="' + (h - b - hgt).toFixed(1) + '" width="' + bw + '" height="' + hgt.toFixed(1) + '"><title>' + data.cats[i] + ': ' + v + '%</title></rect>';
+    });
+    s += '</g>';
+  });
+  s += '<g class="vl" text-anchor="middle">';
+  data.a.forEach((v, i) => {
+    const hgt = plotH * (v / max);
+    s += '<text x="' + (l + slot * i + slot / 2 - bw / 2 - gap / 2).toFixed(1) + '" y="' + (h - b - hgt - 7).toFixed(1) + '">' + v + '</text>';
+  });
+  s += '</g><line class="base" x1="' + l + '" y1="' + (h - b) + '" x2="' + (w - r) + '" y2="' + (h - b) + '"/>';
+  s += '<g class="ax" text-anchor="middle">';
+  data.cats.forEach((c, i) => { s += '<text x="' + (l + slot * i + slot / 2).toFixed(1) + '" y="' + (h - b + 19) + '">' + c + '</text>'; });
+  return s + '</g></svg>';
+}
+
+function lineChart(d, max) {
+  const { w, h, l, r, t, b } = PLOT;
+  const plotW = w - l - r, plotH = h - t - b, n = d.years.length;
+  const X = i => l + (plotW * i) / (n - 1);
+  const Y = v => h - b - plotH * (v / max);
+  const pts = arr => arr.map((v, i) => X(i).toFixed(1) + ',' + Y(v).toFixed(1)).join(' ');
+  const bY = Y(d.benchmark);
+  let s = '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="Capture rate over time">' + scaffold(max, 4);
+  s += '<line x1="' + l + '" y1="' + bY + '" x2="' + (w - r) + '" y2="' + bY + '" stroke="var(--chart-benchmark)" stroke-width="1.5" stroke-dasharray="var(--chart-benchmark-dash)"/>';
+  s += '<text x="' + (w - r) + '" y="' + (bY - 6) + '" text-anchor="end" font-size="10" fill="var(--chart-label)">Benchmark ' + d.benchmark + '</text>';
+  s += '<polyline fill="none" stroke="var(--chart-series-1)" stroke-width="var(--chart-line-width)" stroke-linejoin="round" points="' + pts(d.all) + '"/>';
+  s += '<polyline fill="none" stroke="var(--chart-series-3)" stroke-width="var(--chart-line-width)" stroke-linejoin="round" points="' + pts(d.peers) + '"/>';
+  s += '<polyline fill="none" stroke="var(--chart-accent-line)" stroke-width="var(--chart-line-width)" stroke-linejoin="round" points="' + pts(d.own) + '"/>';
+  const dots = (arr, fill) => '<g fill="' + fill + '" stroke="var(--chart-point-stroke)" stroke-width="var(--chart-point-stroke-width)">' +
+    arr.map((v, i) => '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="3.5"><title>' + d.years[i] + ': ' + v + '%</title></circle>').join('') + '</g>';
+  s += dots(d.all, 'var(--chart-series-1)') + dots(d.peers, 'var(--chart-series-3)') + dots(d.own, 'var(--chart-accent-point)');
+  s += '<line class="base" x1="' + l + '" y1="' + (h - b) + '" x2="' + (w - r) + '" y2="' + (h - b) + '"/><g class="ax" text-anchor="middle">';
+  d.years.forEach((y, i) => { s += '<text x="' + X(i).toFixed(1) + '" y="' + (h - b + 19) + '">' + y + '</text>'; });
+  return s + '</g></svg>';
+}
+
+function doughnut(segments, centerValue, centerLabel) {
+  const R = 82.5, C = 2 * Math.PI * R;
+  const total = segments.reduce((sum, s) => sum + s[1], 0);
+  let offset = 0;
+  let s = '<svg viewBox="0 0 240 240" role="img" aria-label="' + esc(centerLabel) + '"><g transform="rotate(-90 120 120)" fill="none" stroke-width="42">';
+  segments.forEach((seg, i) => {
+    const len = C * (seg[1] / total) - 1.5;
+    s += '<circle class="bar" cx="120" cy="120" r="' + R + '" stroke="var(--chart-series-' + (i + 1) + ')" ' +
+         'stroke-dasharray="' + len.toFixed(1) + ' ' + (C - len).toFixed(1) + '" stroke-dashoffset="' + (-offset).toFixed(1) + '">' +
+         '<title>' + esc(seg[0]) + ': ' + seg[1] + '</title></circle>';
+    offset += C * (seg[1] / total);
+  });
+  s += '</g><text x="120" y="120" text-anchor="middle" font-family="var(--chart-center-font)" font-size="var(--chart-center-value-size)" font-weight="var(--chart-center-value-weight)" fill="var(--chart-label)">' + centerValue + '</text>';
+  s += '<text x="120" y="140" text-anchor="middle" font-family="var(--font-body)" font-size="var(--chart-center-label-size)" fill="var(--chart-label-muted)">' + esc(centerLabel) + '</text></svg>';
+  return s;
+}
+
+function sparkline(values, w, h) {
+  const max = Math.max.apply(null, values), min = Math.min.apply(null, values);
+  const pts = values.map((v, i) => ((w * i) / (values.length - 1)).toFixed(1) + ',' + (h - 3 - (h - 8) * ((v - min) / (max - min || 1))).toFixed(1));
+  return '<svg class="kpi-spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
+    '<polygon points="0,' + h + ' ' + pts.join(' ') + ' ' + w + ',' + h + '" fill="var(--surface-tint)"/>' +
+    '<polyline points="' + pts.join(' ') + '" fill="none" stroke="var(--chart-series-1)" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+}
+
+function legend(items) {
+  return '<div class="legend">' + items.map(i =>
+    '<span><i style="background:' + i[1] + '"></i>' + esc(i[0]) + '</span>').join('') + '</div>';
+}
+
+/* mono = eine Reihe (Zeitachsen); sonst Serienfolge 1–4 des Styleguides */
+function distList(rows, action, mono) {
+  const max = Math.max.apply(null, rows.map(r => r[1]));
+  return '<div class="dist">' + rows.map((r, i) =>
+    '<div class="dist-row" data-act="' + (action || 'explore') + '">' +
+      '<div class="dist-line"><span>' + esc(r[0]) + '</span><strong>' + chNum(r[1]) + '<em>' + r[2] + '%</em></strong></div>' +
+      '<div class="dist-track"><div class="dist-fill' + (mono || !i ? '' : ' s' + Math.min(i + 1, 5)) + '" style="width:' + Math.round((r[1] / max) * 100) + '%"></div></div>' +
+    '</div>').join('') + '</div>';
+}
+
+function chartCard(title, caption, body, foot, kind) {
+  return '<section class="card"><div class="chart-panel">' +
+    '<p class="chart-title">' + esc(title) + '</p>' +
+    '<p class="chart-caption">' + esc(caption) + '</p>' +
+    '<div class="chart-body' + (kind ? ' ' + kind : '') + '">' + body + '</div>' + (foot || '') +
+  '</div></section>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Rahmen
+   ══════════════════════════════════════════════════════════════════════ */
+function topbar() {
+  const nav = [
+    ['dashboard', 'Dashboard',       I.home],
+    ['define',    'Define cohort',   I.filter],
+    ['explore',   'Explore',         I.chart],
+    ['export',    'Export',          I.down]
+  ];
+  return '<header class="topbar"><div class="topbar-inner">' +
+    '<a class="brand" href="#" data-act="go" data-view="dashboard">' +
+      '<span class="brand-mark">' + p('<path d="M4 19.5V4.5M4 19.5h16"/><path d="m7.4 15.6 3.3-4.4 3 2.1 5.1-7"/>', 19).replace('currentColor', '#fff') + '</span>' +
+      '<span><span class="brand-word">ADJUMED</span> <span class="brand-product">Analyze</span></span>' +
+    '</a>' +
+    '<nav class="mainnav">' + nav.map(n =>
+      '<button class="' + (state.view === n[0] ? 'active' : '') + '" data-act="go" data-view="' + n[0] + '">' + n[2] + n[1] + '</button>'
+    ).join('') + '</nav>' +
+    '<div class="topbar-right">' +
+      '<span class="clinic-chip"><i></i>Clinic 1742</span>' +
+      '<button class="icon-btn" data-act="theme" aria-label="Switch appearance" ' +
+        'title="' + (state.theme === 'dark' ? 'Switch to light appearance' : 'Switch to dark appearance') + '">' +
+        (state.theme === 'dark' ? I.sun : I.moon) + '</button>' +
+      '<button class="icon-btn" data-act="toast" data-msg="No new notifications.">' + I.bell + '</button>' +
+      '<button class="icon-btn" data-act="toast" data-msg="Settings are ready for integration.">' + I.gear + '</button>' +
+      '<span class="avatar">CV</span>' +
+    '</div>' +
+  '</div></header>';
+}
+
+function contextbar() {
+  const years = state.years.length ? state.years.slice().sort((a, b) => b - a).join(', ') : 'No year selected';
+  const conds = activeFilters().length;
+  return '<div class="contextbar"><div class="contextbar-inner">' +
+    '<span class="ctx-label">Current cohort</span>' +
+    '<span class="ctx-pill"><strong>' + esc(years) + '</strong></span>' +
+    '<span class="ctx-pill">' + conds + ' condition' + (conds === 1 ? '' : 's') + '</span>' +
+    '<span class="ctx-pill count"><strong>' + chNum(74) + '</strong> cases</span>' +
+    '<span class="ctx-spacer"></span>' +
+    '<button class="toggle ' + (state.advanced ? 'on' : '') + '" data-act="advanced">' +
+      '<span class="track"></span>Advanced field codes</button>' +
+  '</div></div>';
+}
+
+function pageHead(title, lede, actions) {
+  return '<div class="page-head"><div><h1>' + esc(title) + '</h1>' +
+    '<p class="lede">' + esc(lede) + '</p></div>' +
+    '<div class="head-actions">' + (actions || '') + '</div></div>';
+}
+
+function btn(label, act, cls, extra) {
+  return '<button class="btn ' + (cls || 'btn-secondary') + '" data-act="' + act + '" ' + (extra || '') + '>' + label + '</button>';
+}
+
+function kpi(label, value, unit, foot, trend, spark) {
+  return '<div class="kpi">' +
+    '<div class="eyebrow">' + esc(label) + '</div>' +
+    '<div class="kpi-value">' + value + (unit ? '<small>' + unit + '</small>' : '') + '</div>' +
+    '<div class="kpi-foot">' + (trend ? '<span class="trend ' + trend[0] + '">' + trend[1] + '</span>' : '') + esc(foot) + '</div>' +
+    (spark ? sparkline(spark, 96, 40) : '') +
+  '</div>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Ansicht: Dashboard
+   ══════════════════════════════════════════════════════════════════════ */
+function assistant() {
+  return '<section class="assistant">' +
+    '<div class="assistant-head"><span class="spark">' + I.spark + '</span>' +
+      '<h2>Ask your data</h2></div>' +
+    '<p class="lede">Natural-language analysis across the current cohort — no query syntax required.</p>' +
+    '<form class="ask-form" id="ask">' +
+      '<input class="ask-input" id="askq" placeholder="How many breast-conserving surgeries in 2025?" autocomplete="off" />' +
+      btn('Ask', 'ask', 'btn-primary', 'type="submit"') +
+    '</form>' +
+    '<div class="chips">' + ['R0 rate for T2 tumors?', 'Show HER2-positive cases', 'Compare surgery types', 'Capture rate vs. benchmark']
+      .map(q => '<button class="chip" data-act="suggest" data-q="' + esc(q) + '">' + esc(q) + '</button>').join('') + '</div>' +
+    (state.answer ?
+      '<div class="answer"><strong>Analysis complete.</strong> 58 breast-conserving surgeries were recorded in 2025 — 78.4% of all cases. ' +
+      'The R0 resection rate is 93.1%, above the 90% EUSOMA benchmark.' +
+      '<div class="answer-foot">' + btn('Explore these cases ' + I.arrow, 'go', 'btn-secondary btn-sm', 'data-view="explore"') +
+      btn('Save as filter set', 'save-filter', 'btn-ghost btn-sm') + '</div></div>' : '') +
+  '</section>';
+}
+
+function dashboard() {
+  const monthRows = MONTHS.map(m => [m[0], m[1], (m[1] / 101 * 100).toFixed(1)]);
+  return '<div class="view">' +
+    pageHead('Dashboard', 'Overview of your analysis workspace — Clinic 1742, breast cancer registry.',
+      btn(I.plus + ' New cohort', 'go', 'btn-primary', 'data-view="define"')) +
+    assistant() +
+    '<div class="kpi-grid">' +
+      kpi('Total cases', chNum(1248), '', '2025 selection', ['up', '+6.4%'], [58, 62, 60, 68, 72, 74, 79, 84]) +
+      kpi('R0 resections', '93.1', '%', 'above EUSOMA 90%', ['up', '+1.8pp'], [88, 89, 88, 90, 91, 92, 92, 93]) +
+      kpi('Median age', '58', '', 'range 29–87 years', null, null) +
+      kpi('Capture rate', '88', '%', 'benchmark 75%', ['up', '+3pp'], TREND.own) +
+    '</div>' +
+    '<div class="grid-2">' +
+      chartCard('Capture rate by specialty', 'Grouped, two survey years — share of documented cases',
+        groupedBars(CAPTURE, 100),
+        legend([['2025', 'var(--chart-series-1)'], ['2024', 'var(--chart-series-2)']])) +
+      chartCard('Case mix', 'Distribution across the current cohort',
+        doughnut([['Invasive carcinoma', 67], ['In situ carcinoma', 4], ['No carcinoma', 3], ['Not yet classified', 8]], chNum(1248), 'cases total'),
+        legend([['Invasive 82%', 'var(--chart-series-1)'], ['In situ 5%', 'var(--chart-series-2)'], ['No ca. 4%', 'var(--chart-series-3)'], ['Open 9%', 'var(--chart-series-4)']]), 'ring') +
+    '</div>' +
+    '<div class="grid-2">' +
+      chartCard('Capture rate over time', 'Own clinic against peer group and national mean, with benchmark reference',
+        lineChart(TREND, 100),
+        legend([['Own clinic', 'var(--chart-accent-point)'], ['Peer group', 'var(--chart-series-3)'], ['All clinics', 'var(--chart-series-1)']])) +
+      chartCard('Cases by month', '2025 year to date', distList(monthRows, 'explore', true)) +
+    '</div>' +
+    '<div class="grid-2">' +
+      '<section class="card"><div class="card-head"><div><h3>' + I.star + ' Favourite analyses</h3>' +
+        '<p class="sub">Pinned to your workspace</p></div><span class="eyebrow">' + SAVED.filter(s => s.star).length + ' saved</span></div>' +
+        savedList(SAVED.filter(s => s.star)) + '</section>' +
+      '<section class="card"><div class="card-head"><div><h3>' + I.clock + ' Recently used</h3>' +
+        '<p class="sub">Last opened filter sets</p></div></div>' + savedList(SAVED.slice(0, 3)) + '</section>' +
+    '</div>' +
+    '<div class="tile-grid">' + [
+      ['Pending documentation', '12 cases awaiting completion', 'define'],
+      ['Certification readiness', 'EUSOMA / DKG / SBCDB indicators', 'explore'],
+      ['Data quality check', '3 implausible values flagged', 'explore'],
+      ['Annual report 2025', 'Generate the standard export', 'export']
+    ].map(t =>
+      '<div class="tile" data-act="go" data-view="' + t[2] + '"><h4>' + esc(t[0]) + '</h4><p>' + esc(t[1]) + '</p>' +
+      '<span class="btn btn-ghost btn-sm" style="padding:0">Open ' + I.arrow + '</span></div>').join('') +
+    '</div>' +
+  '</div>';
+}
+
+function savedList(items) {
+  return '<div class="list">' + items.map(s =>
+    '<div class="list-row" data-act="go" data-view="explore">' +
+      '<span class="list-icon ' + (s.star ? 'star' : '') + '">' + (s.star ? I.star : I.folder) + '</span>' +
+      '<span class="list-main"><strong>' + esc(s.name) + '</strong><span>' + esc(s.desc) + ' · ' + esc(s.used) + '</span></span>' +
+      '<span class="go">' + I.arrow + '</span>' +
+    '</div>').join('') + '</div>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Ansicht: Define cohort
+   ══════════════════════════════════════════════════════════════════════ */
+function fieldOptions(sel) {
+  return '<option value="">Select field…</option>' + Object.entries(FIELDS).map(([g, fs]) =>
+    '<optgroup label="' + esc(g) + '">' + fs.map(f =>
+      '<option value="' + f.id + '"' + (sel === f.id ? ' selected' : '') + '>' + esc(f.label) +
+      (state.advanced ? ' [' + f.code + ']' : '') + '</option>').join('') + '</optgroup>').join('');
+}
+
+function valueControl(f) {
+  if (VALUES[f.field]) {
+    return '<select data-fid="' + f.id + '" data-part="value"><option value="">Select value…</option>' +
+      VALUES[f.field].map(v => '<option' + (f.value === v ? ' selected' : '') + '>' + esc(v) + '</option>').join('') + '</select>';
+  }
+  return '<input type="text" data-fid="' + f.id + '" data-part="value" value="' + esc(f.value) + '" placeholder="Enter value…" />';
+}
+
+function conditions() {
+  if (!state.filters.length) {
+    return '<p class="muted" style="padding:14px 0">No conditions yet — add one below to narrow the cohort.</p>';
+  }
+  return state.filters.map((f, i) =>
+    (i ? '<div class="cond-join"><span class="join-tag">And</span></div>' : '') +
+    '<div class="cond">' +
+      '<select data-fid="' + f.id + '" data-part="field">' + fieldOptions(f.field) + '</select>' +
+      '<select data-fid="' + f.id + '" data-part="operator">' + OPERATORS.map(o =>
+        '<option' + (f.operator === o ? ' selected' : '') + '>' + o + '</option>').join('') + '</select>' +
+      valueControl(f) +
+      '<button class="cond-remove" data-act="rm-filter" data-id="' + f.id + '" title="Remove condition" aria-label="Remove condition">×</button>' +
+    '</div>').join('');
+}
+
+function defineView() {
+  const af = activeFilters();
+  return '<div class="view">' +
+    pageHead('Define cohort', 'Combine time period and clinical criteria to build the case set you want to analyze.',
+      btn('Show ' + chNum(74) + ' cases ' + I.arrow, 'go', 'btn-primary', 'data-view="explore"')) +
+    '<div class="workflow">' +
+
+      '<aside class="sticky"><section class="card card-pad">' +
+        '<div class="eyebrow" style="margin-bottom:10px">Time period</div>' +
+        '<div class="year-row">' + YEARS.map(y =>
+          '<button class="pick ' + (state.years.includes(y) ? 'on' : '') + '" data-act="year" data-year="' + y + '">' + y + '</button>').join('') + '</div>' +
+        '<div class="eyebrow" style="margin:22px 0 10px">Saved filter sets</div>' +
+        '<div class="field"><select id="saved-select"><option value="">Load a saved filter…</option>' +
+          SAVED.map(s => '<option value="' + s.id + '">' + esc(s.name) + '</option>').join('') + '</select></div>' +
+        '<div style="margin-top:14px">' + btn(I.folder + ' Manage saved filters', 'toast', 'btn-ghost btn-sm', 'data-msg="Filter manager is ready for integration."') + '</div>' +
+      '</section></aside>' +
+
+      '<main><section class="card">' +
+        '<div class="card-head"><div><h3>Conditions</h3>' +
+          '<p class="sub">Cases must satisfy every condition below.</p></div>' +
+          '<span class="eyebrow">' + af.length + ' active</span></div>' +
+        '<div class="card-pad">' + conditions() +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">' +
+            btn(I.plus + ' Add condition', 'add-filter', 'btn-secondary btn-sm') +
+            (state.advanced ? ['And', 'And (br)', 'Not', 'Or', 'Or (br)'].map(o =>
+              '<button class="pick" data-act="toast" data-msg="Boolean grouping is ready for integration.">' + o + '</button>').join('') : '') +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+
+      '<section class="card" style="margin-top:16px"><div class="card-head"><div><h3>Active filters</h3>' +
+        '<p class="sub">What is currently narrowing the cohort</p></div></div>' +
+        '<div class="card-pad"><div class="tags">' + (af.length ? af.map(f =>
+          '<span class="tag"><strong>' + esc(fieldLabel(f.field)) + '</strong> ' + esc(f.operator) + ' ' + esc(f.value) +
+          (state.advanced ? ' <code>' + esc((fieldOf(f.field) || {}).code || '') + '</code>' : '') +
+          '<button data-act="rm-filter" data-id="' + f.id + '" aria-label="Remove">×</button></span>').join('')
+          : '<span class="muted tiny">No complete filters applied — the cohort covers the full selected period.</span>') + '</div>' +
+        '<div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap">' +
+          btn('Save filter set', 'save-filter', 'btn-secondary') +
+          btn('Clear all', 'clear-filters', 'btn-ghost') +
+        '</div></div></section></main>' +
+
+      '<aside class="sticky"><div class="preview">' +
+        '<div class="preview-top"><div class="eyebrow">Live preview</div>' +
+          '<div class="preview-num">' + chNum(74) + '</div><p>matching cases of ' + chNum(1248) + '</p></div>' +
+        '<div class="preview-body">' +
+          '<div class="preview-stat"><span>Primary tumors</span><strong>71</strong></div>' +
+          '<div class="preview-stat"><span>R0 resections</span><strong>39</strong></div>' +
+          '<div class="preview-stat"><span>Clarified externally</span><strong>41</strong></div>' +
+          '<div class="preview-stat"><span>Median age</span><strong>58</strong></div>' +
+        '</div>' +
+        '<div class="preview-foot">' + btn('Explore cohort ' + I.arrow, 'go', 'btn-primary', 'data-view="explore"') + '</div>' +
+      '</div>' +
+      '<section class="card card-pad" style="margin-top:16px">' +
+        '<div class="eyebrow" style="margin-bottom:8px">Cohort quality</div>' +
+        distList([['Complete', 61, 82.4], ['Missing pathology', 8, 10.8], ['Awaiting follow-up', 5, 6.8]], 'noop') +
+      '</section></aside>' +
+    '</div></div>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Ansicht: Explore & Analyze
+   ══════════════════════════════════════════════════════════════════════ */
+function filteredCases() {
+  const q = state.caseSearch.toLowerCase();
+  return CASES.filter(r => !q || r.join(' ').toLowerCase().includes(q));
+}
+
+function caseRows(rows) {
+  return rows.map(r =>
+    '<tr><td class="num">' + r[0] + '</td><td class="num">' + r[1] + '</td><td class="num">' + r[2] + '</td>' +
+    '<td class="num">' + r[3] + '</td><td>' + esc(r[4]) + '</td><td>' + esc(r[5]) + '</td>' +
+    '<td><span class="pill' + (r[6] === 'R0' ? '' : ' warn') + '">' + r[6] + '</span></td><td class="num">' + r[7] + '</td></tr>').join('');
+}
+
+function exploreView() {
+  const rows = filteredCases();
+  return '<div class="view">' +
+    pageHead('Explore & Analyze', 'Distributions, benchmarks and individual cases for the current cohort.',
+      btn(I.filter + ' Adjust cohort', 'go', 'btn-secondary', 'data-view="define"') +
+      btn(I.down + ' Export', 'go', 'btn-primary', 'data-view="export"')) +
+    '<div class="kpi-grid">' +
+      kpi('Matching cases', '74', '', '100% of selection', null, MONTHS.map(m => m[1])) +
+      kpi('R0 rate', '52.7', '%', '39 of 74 cases', ['up', '+4.1pp'], [44, 46, 48, 47, 50, 51, 52, 53]) +
+      kpi('Median age', '58', '', '29–87 years', null, null) +
+      kpi('External clarification', '41', '', '55.4% of cases', null, null) +
+    '</div>' +
+    '<div class="grid-3">' +
+      chartCard('Primary diagnosis', 'Share of the cohort', distList(DIAGNOSIS)) +
+      chartCard('Surgery type', 'First oncological breast surgery', distList(SURGERY)) +
+      chartCard('Tumor stage', 'T classification at diagnosis', distList(STAGE)) +
+    '</div>' +
+    '<div class="grid-2">' +
+      chartCard('Capture rate over time', 'Own clinic against peer group and national mean, with benchmark reference',
+        lineChart(TREND, 100),
+        legend([['Own clinic', 'var(--chart-accent-point)'], ['Peer group', 'var(--chart-series-3)'], ['All clinics', 'var(--chart-series-1)']])) +
+      chartCard('Resection status', 'R classification, current cohort',
+        doughnut([['R0', 39], ['R1', 2], ['Pending', 33]], '52.7%', 'R0 resections'),
+        legend([['R0 · 39', 'var(--chart-series-1)'], ['R1 · 2', 'var(--chart-series-2)'], ['Pending · 33', 'var(--chart-series-3)']]), 'ring') +
+    '</div>' +
+    '<section class="card">' +
+      '<div class="card-head"><div><h3>' + I.table + ' Individual cases</h3>' +
+        '<p class="sub">PID values are masked in this preview</p></div>' +
+        '<div class="table-tools"><input type="search" id="case-search" value="' + esc(state.caseSearch) + '" placeholder="Search cases…" />' +
+        btn(I.down + ' CSV', 'toast', 'btn-secondary btn-sm', 'data-msg="Table export is ready for integration."') + '</div></div>' +
+      '<div class="table-scroll"><table><thead><tr>' +
+        ['No.', 'PID', 'Date', 'Birth year', 'Diagnosis', 'Surgery', 'Resection', 'Stage']
+          .map(h => '<th>' + h + '</th>').join('') +
+      '</tr></thead><tbody id="case-body">' + caseRows(rows) + '</tbody></table></div>' +
+      '<div class="table-foot"><span id="case-count">Showing ' + rows.length + ' of 74 cases</span>' +
+        '<span class="tiny faint">Demonstration data</span></div>' +
+    '</section>' +
+  '</div>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Ansicht: Export
+   ══════════════════════════════════════════════════════════════════════ */
+function exportSummary() {
+  return '<aside class="sticky"><section class="card">' +
+    '<div class="card-head"><div><h3>Export summary</h3><p class="sub">Ready to generate</p></div>' +
+      '<span class="pill">Ready</span></div>' +
+    '<div class="card-pad">' +
+      '<ul class="summary-list">' +
+        '<li><span>Cases</span><strong>' + chNum(74) + '</strong></li>' +
+        '<li><span>Fields</span><strong>' + state.exportFields.length + '</strong></li>' +
+        '<li><span>Conditions</span><strong>' + (activeFilters().length || 'None') + '</strong></li>' +
+        '<li><span>Period</span><strong>' + (state.years.slice().sort((a, b) => b - a).join(', ') || '—') + '</strong></li>' +
+      '</ul>' +
+      (state.exportTab === 'fields' ?
+        '<div class="eyebrow" style="margin:18px 0 8px">Selected fields</div><div class="selected-fields">' +
+        (state.exportFields.length ? state.exportFields.map(f => '<span class="selected-field">' + esc(f) + '</span>').join('')
+          : '<span class="muted tiny">None selected</span>') + '</div>' : '') +
+      '<div class="eyebrow" style="margin:18px 0 8px">Format</div>' +
+      '<div class="year-row" style="margin-bottom:18px">' + ['Excel (.xlsx)', 'CSV', 'PDF'].map(f =>
+        '<button class="pick ' + (state.format === f ? 'on' : '') + '" data-act="format" data-format="' + esc(f) + '">' + esc(f) + '</button>').join('') + '</div>' +
+      '<div class="btn-row">' + btn(I.down + ' Download export', 'download', 'btn-primary') + '</div>' +
+    '</div></section></aside>';
+}
+
+function exportTabs() {
+  return '<div class="tabs">' +
+    '<button class="' + (state.exportTab === 'fields' ? 'active' : '') + '" data-act="tab" data-tab="fields">Custom field export</button>' +
+    '<button class="' + (state.exportTab === 'reports' ? 'active' : '') + '" data-act="tab" data-tab="reports">Pre-defined reports</button>' +
+  '</div>';
+}
+
+function exportView() {
+  const body = state.exportTab === 'reports'
+    ? '<section class="card"><div class="card-head">' + exportTabs() + '</div>' +
+      [['EUSOMA Quality Indicators', 'Standardized EUSOMA breast cancer quality indicators', 'v3.2'],
+       ['DKG Annual Report', 'DKG-compliant annual certification report template', 'v2.1'],
+       ['SBCDB Summary', 'Swiss Breast Cancer Database summary export', 'v1.4'],
+       ['AQC Report', 'Adjumed quality control indicators', 'v4.0']].map(r =>
+        '<div class="report-row"><span class="report-icon">' + I.file + '</span>' +
+        '<span class="report-body"><strong>' + esc(r[0]) + '</strong><span>' + esc(r[1]) + ' · ' + r[2] + '</span></span>' +
+        btn(I.down + ' Generate', 'toast', 'btn-secondary btn-sm', 'data-msg="' + esc(r[0]) + ' selected and ready to generate."') + '</div>').join('') +
+      '</section>'
+    : '<section class="card"><div class="card-head">' + exportTabs() +
+        '<span class="eyebrow">' + state.exportFields.length + ' selected</span></div>' +
+      '<div class="card-pad">' +
+        '<input type="search" id="field-search" placeholder="Search fields…" style="width:100%;margin-bottom:6px" />' +
+        Object.entries(EXPORT_GROUPS).map(([g, fs]) => {
+          const all = fs.every(f => state.exportFields.includes(f));
+          return '<div class="fieldgroup"><div class="fieldgroup-head">' +
+            '<label><input type="checkbox" data-act="group" data-group="' + esc(g) + '"' + (all ? ' checked' : '') + ' />' + esc(g) + '</label>' +
+            '<span class="eyebrow">' + fs.filter(f => state.exportFields.includes(f)).length + '/' + fs.length + '</span></div>' +
+            '<div class="year-row">' + fs.map(f =>
+              '<button class="fchip ' + (state.exportFields.includes(f) ? 'on' : '') + '" data-act="field" data-field="' + esc(f) + '">' +
+              (state.exportFields.includes(f) ? '✓ ' : '') + esc(f) + '</button>').join('') + '</div></div>';
+        }).join('') +
+      '</div></section>';
+
+  return '<div class="view">' +
+    pageHead('Export', 'Download the current selection as a data file or generate a standardized registry report.',
+      btn(I.filter + ' Adjust cohort', 'go', 'btn-secondary', 'data-view="define"')) +
+    '<div class="export-layout">' + body + exportSummary() + '</div>' +
+  '</div>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Rendern & Interaktion
+   ══════════════════════════════════════════════════════════════════════ */
+function footer() {
+  return '<footer class="site-foot"><div class="site-foot-inner">' +
+    '<span>Adjumed Analyze v6 · Prototype workspace · All figures shown are demonstration data</span>' +
+    '<span class="foot-links"><a href="#" data-act="toast" data-msg="Documentation is ready for integration.">Documentation</a>' +
+    '<a href="#" data-act="toast" data-msg="Support is ready for integration.">Support</a>' +
+    '<a href="#" data-act="toast" data-msg="Privacy notice is ready for integration.">Privacy</a></span>' +
+  '</div></footer>';
+}
+
+function render(scroll) {
+  const view = state.view === 'dashboard' ? dashboard()
+             : state.view === 'define'    ? defineView()
+             : state.view === 'explore'   ? exploreView()
+             : exportView();
+  document.getElementById('app').innerHTML =
+    topbar() + contextbar() + '<div class="page">' + view + '</div>' + footer();
+  if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.innerHTML = I.check + '<span>' + esc(msg) + '</span>';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]');
+  if (!t) return;
+  const act = t.dataset.act;
+  if (t.tagName === 'A' || act === 'ask') e.preventDefault();
+
+  switch (act) {
+    case 'go':      state.view = t.dataset.view; render(true); break;
+    case 'theme':
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = state.theme;
+      render(); break;
+    case 'explore': state.view = 'explore'; render(true); break;
+    case 'advanced': state.advanced = !state.advanced; render(); break;
+    case 'year': {
+      const y = Number(t.dataset.year);
+      state.years = state.years.includes(y) ? state.years.filter(v => v !== y) : state.years.concat(y);
+      render(); break;
+    }
+    case 'add-filter':
+      state.filters.push({ id: Date.now(), field: '', operator: 'is', value: '' });
+      render(); break;
+    case 'rm-filter':
+      state.filters = state.filters.filter(f => String(f.id) !== String(t.dataset.id));
+      render(); break;
+    case 'clear-filters':
+      state.filters = []; render(); toast('All conditions cleared.'); break;
+    case 'save-filter':
+      toast('Filter set saved to your workspace.'); break;
+    case 'suggest': {
+      const input = document.getElementById('askq');
+      if (input) input.value = t.dataset.q;
+      state.answer = true; render(); break;
+    }
+    case 'tab':    state.exportTab = t.dataset.tab; render(); break;
+    case 'format': state.format = t.dataset.format; render(); break;
+    case 'field': {
+      const f = t.dataset.field;
+      state.exportFields = state.exportFields.includes(f)
+        ? state.exportFields.filter(v => v !== f)
+        : state.exportFields.concat(f);
+      render(); break;
+    }
+    case 'download':
+      toast('Export prepared as ' + state.format + ' — the file would download here.'); break;
+    case 'toast':
+      toast(t.dataset.msg || 'This prototype action is ready for integration.'); break;
+    case 'noop': break;
+  }
+});
+
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.fid) {
+    const f = state.filters.find(x => String(x.id) === String(t.dataset.fid));
+    if (!f) return;
+    f[t.dataset.part] = t.value;
+    if (t.dataset.part === 'field') f.value = '';
+    render();
+    return;
+  }
+  if (t.dataset.act === 'group') {
+    const fs = EXPORT_GROUPS[t.dataset.group];
+    const all = fs.every(f => state.exportFields.includes(f));
+    state.exportFields = all
+      ? state.exportFields.filter(f => !fs.includes(f))
+      : Array.from(new Set(state.exportFields.concat(fs)));
+    render();
+    return;
+  }
+  if (t.id === 'saved-select' && t.value) {
+    const s = SAVED.find(x => String(x.id) === t.value);
+    state.filters = [{ id: Date.now(), field: 'resection', operator: 'is', value: 'R0' }];
+    render();
+    toast('"' + s.name + '" loaded.');
+  }
+});
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'case-search') {
+    state.caseSearch = e.target.value;
+    const rows = filteredCases();
+    document.getElementById('case-body').innerHTML = caseRows(rows);
+    document.getElementById('case-count').textContent = 'Showing ' + rows.length + ' of 74 cases';
+  }
+  if (e.target.id === 'field-search') {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.fchip').forEach(c => {
+      c.style.display = c.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+});
+
+document.addEventListener('submit', e => {
+  if (e.target.id === 'ask') { e.preventDefault(); state.answer = true; render(); }
+});
+
+document.documentElement.dataset.theme = state.theme;
+render();
+</script>
+</body>
+</html>
