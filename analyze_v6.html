@@ -6,7 +6,7 @@
 <title>Adjumed Analyze — v6</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Roboto+Condensed:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════════════
    ADJUMED ANALYZE — v6
@@ -82,6 +82,12 @@
   --font-body: 'Roboto', Helvetica, Arial, sans-serif;
   --font-heading: 'Roboto', Helvetica, Arial, sans-serif;
   --font-button: 'Roboto Condensed', Helvetica, Arial, Lucida, sans-serif;
+  /* Aus v3 uebernommen und bewusst als Ausnahme zum Website-Styleguide
+     gefuehrt: eine Display-Serife, die AUSSCHLIESSLICH grosse Einzelwerte
+     und die Assistenten-Ueberschrift traegt. Nie fuer Fliesstext,
+     Navigation, Tabellen oder Achsenbeschriftung. Instrument Serif hat nur
+     einen Schnitt (400) - deshalb dort nie --fw-light setzen. */
+  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
 
   --fw-light: 300;
   --fw-regular: 400;
@@ -176,9 +182,11 @@
   --chart-point-stroke-width: 1px;
   --chart-accent-line: var(--adj-orange-light);
   --chart-accent-point: var(--adj-orange);
-  --chart-center-font: 'Roboto Condensed', Helvetica, Arial, sans-serif;
+  /* Abweichung von charts.css: die Kennzahl im Ring ist derselbe grosse
+     Einzelwert wie in den KPI-Karten und traegt deshalb dieselbe Serife. */
+  --chart-center-font: var(--font-display);
   --chart-center-value-size: 34px;
-  --chart-center-value-weight: 500;
+  --chart-center-value-weight: 400;
   --chart-center-label-size: 13px;
   --chart-segment-stroke: var(--adj-white);
   --chart-segment-stroke-width: 1.5px;
@@ -500,11 +508,11 @@ svg { vertical-align: middle; }
 }
 .kpi > *:not(.kpi-spark) { position: relative; z-index: 1; }
 .kpi-value {
-  margin: 10px 0 2px; font-family: var(--font-heading); font-weight: var(--fw-light);
-  font-size: 44px; line-height: 1; letter-spacing: -.02em; color: var(--ink-accent);
+  margin: 10px 0 2px; font-family: var(--font-display); font-weight: var(--fw-regular);
+  font-size: 46px; line-height: 1; letter-spacing: 0; color: var(--ink-accent);
   font-variant-numeric: tabular-nums;
 }
-.kpi-value small { font-size: 22px; font-weight: var(--fw-light); }
+.kpi-value small { font-size: 24px; font-weight: var(--fw-regular); }
 .kpi-foot { display: flex; align-items: center; gap: 7px; font-size: var(--fs-ui-sm); color: var(--text-muted); }
 .trend {
   display: inline-flex; align-items: center; gap: 3px;
@@ -527,7 +535,7 @@ svg { vertical-align: middle; }
 }
 .assistant-head { display: flex; align-items: center; gap: 10px; margin-bottom: 3px; }
 .assistant-head .spark { color: var(--adj-orange); font-size: 17px; line-height: 1; }
-.assistant h2 { font-size: var(--fs-h4); font-weight: var(--fw-light); color: var(--ink-accent); }
+.assistant h2 { font-family: var(--font-display); font-size: 30px; font-weight: var(--fw-regular); letter-spacing: 0; color: var(--ink-accent); }
 .assistant .lede { font-size: var(--fs-ui); color: var(--text-muted); margin-bottom: var(--space-4); }
 .ask-form { display: flex; gap: var(--space-2); }
 .ask-input {
@@ -708,8 +716,8 @@ input:focus, select:focus { outline: 0; border-color: var(--border-control-stron
 }
 .preview-top .eyebrow { color: rgba(255, 255, 255, .72); }
 .preview-num {
-  font-family: var(--font-heading); font-weight: var(--fw-light);
-  font-size: 54px; line-height: 1.05; letter-spacing: -.02em;
+  font-family: var(--font-display); font-weight: var(--fw-regular);
+  font-size: 58px; line-height: 1.05; letter-spacing: 0;
   font-variant-numeric: tabular-nums; margin: 6px 0 2px;
 }
 .preview-top p { font-size: var(--fs-ui-sm); color: rgba(255, 255, 255, .82); }
