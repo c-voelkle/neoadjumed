@@ -1181,7 +1181,7 @@ function contextbar() {
 
 function pageHead(title, lede, actions) {
   return '<div class="page-head"><div><h1>' + esc(title) + '</h1>' +
-    '<p class="lede">' + esc(lede) + '</p></div>' +
+    (lede ? '<p class="lede">' + esc(lede) + '</p>' : '') + '</div>' +
     '<div class="head-actions">' + (actions || '') + '</div></div>';
 }
 
@@ -1223,7 +1223,7 @@ function assistant() {
 function dashboard() {
   const monthRows = MONTHS.map(m => [m[0], m[1], (m[1] / 101 * 100).toFixed(1)]);
   return '<div class="view">' +
-    pageHead('Dashboard',
+    pageHead('Dashboard', '',
       btn(I.plus + ' New cohort', 'go', 'btn-primary', 'data-view="define"')) +
     assistant() +
     '<div class="kpi-grid">' +
