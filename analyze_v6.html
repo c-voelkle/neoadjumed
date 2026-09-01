@@ -1223,7 +1223,7 @@ function assistant() {
 function dashboard() {
   const monthRows = MONTHS.map(m => [m[0], m[1], (m[1] / 101 * 100).toFixed(1)]);
   return '<div class="view">' +
-    pageHead('Dashboard', 'Overview of your analysis workspace — Clinic 1742, breast cancer registry.',
+    pageHead('Dashboard',
       btn(I.plus + ' New cohort', 'go', 'btn-primary', 'data-view="define"')) +
     assistant() +
     '<div class="kpi-grid">' +
